@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -24,7 +25,7 @@ import com.google.android.gms.tasks.Task;
 public class MainActivity extends AppCompatActivity {
 
     private static final int GEOFENCE_RADIUS = 500;
-
+    private static final int SDK_THRESHOLD = 23;
 
     private GeofencingClient geofencingClient;
     private GoogleApiClient googleApiClient;
@@ -47,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private void InitGeofences() {
         Log.d("TEST", "En initGeofences");
         if (isLocationAccessPermitted()) {
-            askPermission();
-        } else {
             Geofence geofence = getGeofence(40.0672832, -2.137968, "Hispano Fermín Caballero");
             Log.d("TEST", "Creando geofence");
 
@@ -67,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
+
+        } else {
+            Log.d("TEST", "no localizacion");
+            askPermission();
+
         }
 
     }
@@ -78,13 +82,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isLocationAccessPermitted(){
-        if (ContextCompat.checkSelfPermission(this,
+        if (Build.VERSION.SDK_INT < SDK_THRESHOLD) return true;
+        return (ContextCompat.checkSelfPermission(this,
                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }else{
-            return false;
-        }
+                == PackageManager.PERMISSION_GRANTED);
     }
 
     private GeofencingRequest getGeofencingRequest(Geofence geofence) {
