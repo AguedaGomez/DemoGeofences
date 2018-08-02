@@ -75,7 +75,7 @@ public class LocationAlertIntentService extends IntentService {
         for (Geofence geofence : triggeringGeofences) {
             locationNames.add(getLocationName(geofence.getRequestId()));
         }
-        String triggeringLocationsString = TextUtils.join(", ", locationNames);
+        String triggeringLocationsString = TextUtils.join("/n ", locationNames);
 
         return triggeringLocationsString;
     }

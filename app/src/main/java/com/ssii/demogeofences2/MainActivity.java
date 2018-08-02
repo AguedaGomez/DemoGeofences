@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -16,22 +17,26 @@ import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int GEOFENCE_RADIUS = 50;
+    private static final int GEOFENCE_RADIUS = 100;
     private static final int SDK_THRESHOLD = 23;
 
     private GeofencingClient geofencingClient;
 
     private FusedLocationProviderClient mFusedLocationClient;
+
 
     TextView tv;
 
@@ -41,13 +46,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv = (TextView)findViewById(R.id.TextLog);
-
-        InitGeofences();
+        geofencingClient = new GeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        InitGeofences();
+
 
 
     }
-
 
 
     @SuppressLint("MissingPermission")
@@ -58,23 +63,24 @@ public class MainActivity extends AppCompatActivity {
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 Log.d("TEST", location.getLatitude() + "," + location.getLongitude());
+                                // Logic to handle location object
                             }
                         }
                     });
-            List<Geofence> geofences = new ArrayList<Geofence>();
-            geofences.add(getGeofence(40.0643055, -2.1393537, "Ahorramas, Paseo San Antonio"));
-            geofences.add(getGeofence(40.0678358, -2.1376562, "Musical Ismael, Fermin Caballero"));
+            geofencingClient.removeGeofences(getGeofencePendingIntent());
+            List<Geofence> geofences = new ArrayList<>();
+            geofences.add(getGeofence(40.0665974, -2.142336, "Plaza de toros"));
+            geofences.add(getGeofence(40.0703178, -2.1398082, "Cuatro caminos"));
             geofences.add(getGeofence(40.0700921, -2.1383116, "Mango, Calle Cervantes"));
-            geofences.add(getGeofence(40.067567, -2.1392448, "Casa, Paseo San Antonio"));
-            //Geofence geofence = getGeofence(40.0672832, -2.137968, "Hispano Fermín Caballero");
-            //Log.d("TEST", "Creando geofence");
-           /* List<Geofence> geofences = new ArrayList<Geofence>();
-            geofences.add(geofence);
-            geofencingClient.removeGeofences(geofences);
-            for (Geofence g: geofences) {
+            geofences.add(getGeofence(40.0616557, -2.1386667, "Quinientas-Reyes Catolicos"));
+            geofences.add(getGeofence(40.0732046, -2.1389133, "Carreteria"));
+            geofences.add(getGeofence(40.0675682, -2.1398859, "Casa"));
+            geofences.add(getGeofence(40.0612614, -2.1432617, "Guardia Civil"));
 
+            for (Geofence g: geofences) {
                 geofencingClient.addGeofences(getGeofencingRequest(g), getGeofencePendingIntent())
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
@@ -85,12 +91,12 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d("TEST", "Geofence añadida");
 
                                 } else {
+                                    Log.d("TEST", getErrorString(task.getException().hashCode()));
                                     tv.setText(tv.getText() + " No se ha añadido geofence\n");
                                 }
-
                             }
                         });
-            }*/
+            }
 
         } else {
             Log.d("TEST", "no localizacion");
@@ -107,6 +113,21 @@ public class MainActivity extends AppCompatActivity {
         InitGeofences();
 
     }*/
+
+    private String getErrorString(int errorCode) {
+        switch (errorCode) {
+            case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
+                return "Geofence not available";
+            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
+                return "geofence too many_geofences";
+            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
+                return "geofence too many pending_intents";
+            default:
+
+                Log.d("TEST",GeofenceStatusCodes.getStatusCodeString(errorCode) );
+                return "geofence error";
+        }
+    }
 
 
     private void askPermission(){
@@ -137,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(10000)
+                .setLoiteringDelay(5000)
                 .build();
     }
 
