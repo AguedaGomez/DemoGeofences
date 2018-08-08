@@ -6,14 +6,81 @@
     android:layout_height="match_parent"
     tools:context="com.ssii.demogeofences2.MainActivity">
 
-    <TextView
-        android:id="@+id/TextLog"
-        android:layout_width="149dp"
-        android:layout_height="85dp"
-        android:text="Hello World!"
+    <LinearLayout
+        android:layout_width="357dp"
+        android:layout_height="416dp"
+        android:layout_marginBottom="36dp"
+        android:gravity="bottom|center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="@android:dimen/app_icon_size"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.518"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/locationButton"
+            android:layout_width="64dp"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="48dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:layout_marginBottom="2dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:srcCompat="@drawable/ic_marker"
+            tools:ignore="VectorDrawableCompat" />
+
+        <TextView
+            android:id="@+id/localizationTextInfo"
+            android:layout_width="338dp"
+            android:layout_height="90dp"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="@font/convergence"
+            android:text="Estás en"
+            android:textAlignment="center"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/learnButton"
+            android:layout_width="300dp"
+            android:layout_height="52dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/blackbuttondesing"
+            android:fontFamily="@font/convergence"
+            android:text="APRENDER"
+            android:textAlignment="center"
+            android:textColor="@color/common_google_signin_btn_text_light_focused"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/testButton"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/blackbuttondesing"
+            android:text="EVALUAR"
+            android:textColor="@color/common_google_signin_btn_text_light_focused"
+            android:fontFamily="@font/convergence"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="402dp"
+        android:layout_height="99dp"
+        android:background="@android:color/transparent"
+        android:elevation="2dp"
+        android:visibility="visible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -13,6 +13,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,33 +33,69 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int GEOFENCE_RADIUS = 100;
+    private static final int GEOFENCE_RADIUS = 150;
     private static final int SDK_THRESHOLD = 23;
 
     private GeofencingClient geofencingClient;
 
     private FusedLocationProviderClient mFusedLocationClient;
 
+    private LocationInfo locationInfo;
+    private double currentLat, currentLong;
+    private String currentPlace = ""; //Enum?
 
-    TextView tv;
+
+    TextView tv, localizationInfo;
+    Button testButton, learnButton;
+    ImageButton locationButton;
+    List<Geofence> geofences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv = (TextView)findViewById(R.id.TextLog);
+        geofences = new ArrayList<>();
+
+
+        localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
+
+        locationInfo = new LocationInfo();
+        localizationInfo.setText(localizationInfo.getText() + "\n" + locationInfo.currentPlace);
+
         geofencingClient = new GeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        InitGeofences();
-
-
+        getCurrentPlace();
+        InitButtons();
 
     }
 
+    private void InitButtons() {
+        locationButton = (ImageButton)findViewById(R.id.locationButton);
+        learnButton = (Button)findViewById(R.id.learnButton);
+        testButton = (Button)findViewById(R.id.testButton);
+
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                getCurrentPlace();
+            }
+        });
+        learnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initializeLearnActivity();
+            }
+        });
+    }
+
+    private void initializeLearnActivity() {
+        Intent intent = new Intent(this, LearnActivity.class);
+        intent.putExtra("currentPlace", currentPlace);
+        startActivity(intent);
+    }
 
     @SuppressLint("MissingPermission")
-    private void InitGeofences() {
+    private void getCurrentPlace() {
         Log.d("TEST", "En initGeofences");
         if (isLocationAccessPermitted()) {
             mFusedLocationClient.getLastLocation()
@@ -66,37 +105,17 @@ public class MainActivity extends AppCompatActivity {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 Log.d("TEST", location.getLatitude() + "," + location.getLongitude());
-                                // Logic to handle location object
+                                currentLat = location.getLatitude();
+                                currentLong = location.getLongitude();
+                                String nearestPlace = locationInfo.nearestPlace2Me(currentLat, currentLong);
+                                localizationInfo.setText("Estás en " + nearestPlace);
+                                currentPlace = nearestPlace;
+                                Log.d("TEST", nearestPlace);
                             }
                         }
                     });
-            geofencingClient.removeGeofences(getGeofencePendingIntent());
-            List<Geofence> geofences = new ArrayList<>();
-            geofences.add(getGeofence(40.0665974, -2.142336, "Plaza de toros"));
-            geofences.add(getGeofence(40.0703178, -2.1398082, "Cuatro caminos"));
-            geofences.add(getGeofence(40.0700921, -2.1383116, "Mango, Calle Cervantes"));
-            geofences.add(getGeofence(40.0616557, -2.1386667, "Quinientas-Reyes Catolicos"));
-            geofences.add(getGeofence(40.0732046, -2.1389133, "Carreteria"));
-            geofences.add(getGeofence(40.0675682, -2.1398859, "Casa"));
-            geofences.add(getGeofence(40.0612614, -2.1432617, "Guardia Civil"));
 
-            for (Geofence g: geofences) {
-                geofencingClient.addGeofences(getGeofencingRequest(g), getGeofencePendingIntent())
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()) {
-
-                                    tv.setText(tv.getText() + " Geofence Añadida\n");
-                                    Log.d("TEST", "Geofence añadida");
-
-                                } else {
-                                    Log.d("TEST", getErrorString(task.getException().hashCode()));
-                                    tv.setText(tv.getText() + " No se ha añadido geofence\n");
-                                }
-                            }
-                        });
-            }
+           //addGeofences();
 
         } else {
             Log.d("TEST", "no localizacion");
@@ -110,10 +129,51 @@ public class MainActivity extends AppCompatActivity {
    /* @Override
     protected void onStart() {
         super.onStart();
-        InitGeofences();
+        getCurrentPlace();
 
     }*/
 
+   @SuppressLint("MissingPermission")
+   private  void addGeofences () {
+       geofencingClient.removeGeofences(getGeofencePendingIntent());
+
+       geofences.add(getGeofence(40.0665974, -2.142336, "Plaza de toros"));
+       geofences.add(getGeofence(40.0703178, -2.1398082, "Cuatro caminos"));
+       geofences.add(getGeofence(40.0700921, -2.1383116, "Mango, Calle Cervantes"));
+       geofences.add(getGeofence(40.0616557, -2.1386667, "Quinientas-Reyes Catolicos"));
+       geofences.add(getGeofence(40.0732046, -2.1389133, "Carreteria"));
+       geofences.add(getGeofence(40.0675682, -2.1398859, "Casa"));
+       geofences.add(getGeofence(40.0612614, -2.1432617, "Guardia Civil"));
+       geofences.add(getGeofence(40.0537183, -2.1245353, "El Mirador"));
+       geofences.add(getGeofence(40.0537183, -2.1245353, "Hospital"));
+       geofences.add(getGeofence(40.0759322, -2.1465609, "Facultad ciencias sociales"));
+       geofences.add(getGeofence(40.074022, -2.1429329, "Carrero"));
+       geofences.add(getGeofence(37.9117953, -4.7918234, "Casa Nacho"));
+       geofences.add(getGeofence(40.067376, -2.1371418, "Estación"));
+       geofences.add(getGeofence(39.7274187, -1.9011215, "Almodóvar Casa"));
+       geofences.add(getGeofence(39.7256353, -1.9015827, "Almodóvar Plaza"));
+       geofences.add(getGeofence(39.72846, -1.9003411, "Almodóvar Coche"));
+       geofences.add(getGeofence(39.7246181, -1.9011311, "Almodóvar Colegio"));
+       geofences.add(getGeofence(39.7249874, -1.9005061, "Almodóvar Justino"));
+       geofences.add(getGeofence(39.7262083, -1.8995498, "Almodóvar Boni"));
+       for (Geofence g: geofences) {
+           geofencingClient.addGeofences(getGeofencingRequest(g), getGeofencePendingIntent())
+                   .addOnCompleteListener(new OnCompleteListener<Void>() {
+                       @Override
+                       public void onComplete(@NonNull Task<Void> task) {
+                           if(task.isSuccessful()) {
+
+
+                               Log.d("TEST", "Geofence añadida");
+
+                           } else {
+                               Log.d("TEST", getErrorString(task.getException().hashCode()));
+
+                       }
+                       }
+                   });
+       }
+   }
     private String getErrorString(int errorCode) {
         switch (errorCode) {
             case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
@@ -145,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     private GeofencingRequest getGeofencingRequest(Geofence geofence) {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
 
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(geofence);
         return builder.build();
 
@@ -157,8 +217,8 @@ public class MainActivity extends AppCompatActivity {
                 .setCircularRegion(lat, lang, GEOFENCE_RADIUS)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(5000)
+                        Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setLoiteringDelay(10000)
                 .build();
     }
 
@@ -166,14 +226,14 @@ public class MainActivity extends AppCompatActivity {
     private final int GEOFENCE_REQ_CODE = 0;
 
     private PendingIntent getGeofencePendingIntent() {
-        //Intent intent = new Intent(this, LocationAlertIntentService.class);
-        //return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if ( geoFencePendingIntent != null )
             return geoFencePendingIntent;
 
         Intent intent = new Intent( this, LocationAlertIntentService.class);
+
         return geoFencePendingIntent = PendingIntent.getService(
                 this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
     }
+
 
 }

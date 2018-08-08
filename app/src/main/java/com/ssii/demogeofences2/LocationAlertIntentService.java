@@ -2,8 +2,11 @@ package com.ssii.demogeofences2;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.Nullable;
@@ -25,6 +28,9 @@ import java.util.Locale;
 
 public class LocationAlertIntentService extends IntentService {
 
+
+    LocationInfo locationInfo;
+
     public LocationAlertIntentService() {
         super("LocationAlerts");
     }
@@ -42,7 +48,7 @@ public class LocationAlertIntentService extends IntentService {
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
 
         if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
+                geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
 
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
@@ -53,6 +59,9 @@ public class LocationAlertIntentService extends IntentService {
 
 
             notifyLocationAlert(transitionType, transitionDetails);
+
+            locationInfo.currentPlace = transitionDetails;
+
 
         }
     }
@@ -75,7 +84,7 @@ public class LocationAlertIntentService extends IntentService {
         for (Geofence geofence : triggeringGeofences) {
             locationNames.add(getLocationName(geofence.getRequestId()));
         }
-        String triggeringLocationsString = TextUtils.join("/n ", locationNames);
+        String triggeringLocationsString = TextUtils.join(", ", locationNames);
 
         return triggeringLocationsString;
     }
@@ -137,7 +146,7 @@ public class LocationAlertIntentService extends IntentService {
 
     private void notifyLocationAlert(String locTransitionType, String locationDetails) {
 
-      NotificationCompat.Builder builder =
+     /* NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.marker)
                         .setContentTitle(locTransitionType)
@@ -159,5 +168,34 @@ public class LocationAlertIntentService extends IntentService {
                 .build();
 
         startForeground(0, notification );*/
+     Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(notificationIntent);
+        PendingIntent notificationPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Get a notification builder that's compatible with platform versions >= 4
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+        // Define the notification settings.
+        builder.setSmallIcon(R.drawable.marker)
+                // In a real app, you may want to use a library like Volley
+                // to decode the Bitmap.
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.ic_launcher))
+                .setLights(0xff00ff00, 300, 100)
+                .setContentTitle(locationDetails)
+                .setContentText(locTransitionType)
+                .setContentIntent(notificationPendingIntent);
+
+        // Dismiss notification once the user touches it.
+        builder.setAutoCancel(true);
+
+        // Get an instance of the Notification manager
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Issue the notification
+        mNotificationManager.notify(0, builder.build());
     }
 }
