@@ -15,12 +15,16 @@ public class LearnActivity extends AppCompatActivity {
     TextView nameConceptTextV;
     FloatingActionButton nextFAButton;
 
+    VocabularyData vocabularyData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn);
 
         initializeComponents();
+        vocabularyData = new VocabularyData();
+        vocabularyData.getVocabulary();
     }
 
     private void initializeComponents() {

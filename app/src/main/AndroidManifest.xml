@@ -21,7 +21,7 @@
         </activity>
 
         <meta-data
-            android:name="com.google.android.gms:play-services:11.0.4"
+            android:name="com.google.android.gms:play-services:12.0.1"
             android:value="@integer/google_play_services_version" />
 
         <service

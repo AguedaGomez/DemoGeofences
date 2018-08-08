@@ -2,6 +2,8 @@ package com.ssii.demogeofences2;
 
 import android.util.Log;
 
+import com.ssii.demogeofences2.Objects.Place;
+
 import java.util.ArrayList;
 import java.util.List;
 

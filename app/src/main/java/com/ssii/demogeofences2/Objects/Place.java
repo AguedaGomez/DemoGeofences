@@ -1,4 +1,4 @@
-package com.ssii.demogeofences2;
+package com.ssii.demogeofences2.Objects;
 
 /**
  * Created by Ague on 07/08/2018.

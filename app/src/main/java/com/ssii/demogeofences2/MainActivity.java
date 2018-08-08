@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     List<Geofence> geofences;
 
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
