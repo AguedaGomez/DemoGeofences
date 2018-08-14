@@ -7,12 +7,10 @@ package com.ssii.demogeofences2.Objects;
 public class Concept {
     private String name;
     private String image;
-    private String category;
 
-    public Concept(String name, String image, String category) {
+    public Concept(String name, String image) {
         this.name = name;
         this.image = image;
-        this.category = category;
     }
 
     public String getName() {
@@ -29,13 +27,5 @@ public class Concept {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 }

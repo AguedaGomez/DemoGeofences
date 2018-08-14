@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
         geofencingClient = new GeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        getCurrentPlace();
+        currentPlace = "station";
+        //getCurrentPlace();
         InitButtons();
 
     }
