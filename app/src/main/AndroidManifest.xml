@@ -28,7 +28,8 @@
             android:name=".LocationAlertIntentService"
             android:allowBackup="true" />
 
-        <activity android:name=".LearnActivity"></activity>
+        <activity android:name=".LearnActivity" />
+        <activity android:name=".EvaluationActivity"></activity>
     </application>
 
 </manifest>

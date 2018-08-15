@@ -1,7 +1,10 @@
 package com.ssii.demogeofences2;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,9 +19,11 @@ import com.google.firebase.storage.StorageReference;
 import com.ssii.demogeofences2.Objects.Concept;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
+import java.util.Set;
 
 public class LearnActivity extends AppCompatActivity implements Observer{
 
@@ -31,20 +36,17 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     VocabularyManager vocabularyManager;
     String currentPlace;
     HashMap<String, Concept> concepts;
-    HashMap<String, Concept> knownToughtConcepts;
-    Object[] conceptsKeys;
+    HashMap<String, Concept> knownTaughtConcepts;
     Concept currentConcept;
+    Set<String> conceptsKeys;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn);
-
-        knownToughtConcepts = new HashMap<>();
+        knownTaughtConcepts = new HashMap<>();
         initializeComponents();
         loadVocabulary();
-
-
     }
 
     private void loadVocabulary() {
@@ -99,9 +101,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 currentConcept.setWeight(10);
-                concepts.remove(currentConcept.getName());
-                conceptsKeys = concepts.keySet().toArray();
-                knownToughtConcepts.put(currentConcept.getName(), currentConcept);
+                conceptsKeys.remove(currentConcept.getName());
+                knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -111,9 +112,46 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     private void chooseConcept() {
         Log.d("TEST", "chooseConcept");
-        Object key = conceptsKeys[new Random().nextInt(conceptsKeys.length)];
-        currentConcept = concepts.get(key);
-        showConcept(currentConcept);
+        if (conceptsKeys.size() > 0) {
+            Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
+            currentConcept = concepts.get(key);
+            showConcept(currentConcept);
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")
+                    .setCancelable(false)
+                    .setNegativeButton("Volver al menú",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.cancel();
+                                    initializeMainActivity();
+                                }
+                            })
+                    .setPositiveButton("Evaluar",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    //Guardar los conceptos aprendidos con los pesos actualizados
+                                    initializeEvaluationActivity();
+                                }
+                            });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+
+    }
+
+    private void initializeMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void initializeEvaluationActivity() {
+        Intent intent = new Intent(this, EvaluationActivity.class);
+        intent.putExtra("knownTaughtConcepts", knownTaughtConcepts);
+        startActivity(intent);
     }
 
     private void showConcept(Concept currentConcept) {
@@ -129,7 +167,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     private void showName() {
         nameConceptTextV.setVisibility(View.VISIBLE);
-        if(!knownToughtConcepts.containsKey(currentConcept.getName())) {
+        if(!knownTaughtConcepts.containsKey(currentConcept.getName())) {
             unknowButton.setVisibility(View.VISIBLE);
             knowButton.setVisibility(View.VISIBLE);
         }
@@ -147,7 +185,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     @Override
     public void update(Observable observable, Object o) {
         concepts = (HashMap<String, Concept>)o;
-        conceptsKeys = concepts.keySet().toArray();
+        conceptsKeys = new HashSet<>(concepts.keySet());
+        conceptsKeys.removeAll(knownTaughtConcepts.keySet());
         chooseConcept();
         Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
     }
