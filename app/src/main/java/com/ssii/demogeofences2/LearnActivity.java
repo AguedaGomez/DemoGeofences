@@ -31,12 +31,16 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     VocabularyManager vocabularyManager;
     String currentPlace;
     HashMap<String, Concept> concepts;
+    HashMap<String, Concept> knownToughtConcepts;
+    Object[] conceptsKeys;
+    Concept currentConcept;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn);
 
+        knownToughtConcepts = new HashMap<>();
         initializeComponents();
         loadVocabulary();
 
@@ -75,12 +79,41 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 showName();
             }
         });
+        nextFAButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideButtons();
+                chooseConcept();
+            }
+        });
+        unknowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentConcept.setWeight(15);
+                nextFAButton.setVisibility(View.VISIBLE);
+                unknowButton.setVisibility(View.INVISIBLE);
+                knowButton.setVisibility(View.INVISIBLE);
+            }
+        });
+        knowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentConcept.setWeight(10);
+                concepts.remove(currentConcept.getName());
+                conceptsKeys = concepts.keySet().toArray();
+                knownToughtConcepts.put(currentConcept.getName(), currentConcept);
+                nextFAButton.setVisibility(View.VISIBLE);
+                unknowButton.setVisibility(View.INVISIBLE);
+                knowButton.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     private void chooseConcept() {
         Log.d("TEST", "chooseConcept");
-        //Concept currentConcept = vocabularyData.getRandomConcept(concepts);
-        //showConcept(currentConcept);
+        Object key = conceptsKeys[new Random().nextInt(conceptsKeys.length)];
+        currentConcept = concepts.get(key);
+        showConcept(currentConcept);
     }
 
     private void showConcept(Concept currentConcept) {
@@ -96,25 +129,28 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     private void showName() {
         nameConceptTextV.setVisibility(View.VISIBLE);
-        nextFAButton.setVisibility(View.VISIBLE);
-        unknowButton.setVisibility(View.VISIBLE);
-        knowButton.setVisibility(View.VISIBLE);
+        if(!knownToughtConcepts.containsKey(currentConcept.getName())) {
+            unknowButton.setVisibility(View.VISIBLE);
+            knowButton.setVisibility(View.VISIBLE);
+        }
+        else
+            nextFAButton.setVisibility(View.VISIBLE);
     }
 
     private void hideButtons() {
         nextFAButton.setVisibility(View.INVISIBLE);
         unknowButton.setVisibility(View.INVISIBLE);
         knowButton.setVisibility(View.INVISIBLE);
+        nameConceptTextV.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void update(Observable observable, Object o) {
         concepts = (HashMap<String, Concept>)o;
-        Object[] conceptsKeys = concepts.keySet().toArray();
-        Object key = conceptsKeys[new Random().nextInt(conceptsKeys.length)];
-
-        Concept concept = concepts.get(key);
-        showConcept(concept);
+        conceptsKeys = concepts.keySet().toArray();
+        chooseConcept();
         Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
     }
+
+
 }

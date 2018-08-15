@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 public class VocabularyManager {
 
+
     public Concept getRandomConcept(HashMap<String, Concept> concepts) {
         int random = (int)(Math.random() * concepts.size());
         Concept concept = concepts.get(random);

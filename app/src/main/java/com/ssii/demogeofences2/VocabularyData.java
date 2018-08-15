@@ -18,6 +18,7 @@ public class VocabularyData extends Observable {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     HashMap<String, Concept> conceptMap;
+    final int DEFAULT_WEIGHT = -1;
 
     public  void getVocabulary(String currentCategory) {
         conceptMap = new HashMap<String, Concept>();
@@ -32,7 +33,7 @@ public class VocabularyData extends Observable {
                                 Log.d("TEST", document.getId() + " => " + document.getData());
                                 String name = document.getData().get("name").toString();
                                 String imageRoute = document.getData().get("image").toString();
-                                Concept concept = new Concept(name, imageRoute);
+                                Concept concept = new Concept(name, imageRoute,DEFAULT_WEIGHT);
                                 conceptMap.put(name, concept);
                             }
                             setChanged();
