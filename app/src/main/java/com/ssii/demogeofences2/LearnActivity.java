@@ -17,7 +17,10 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ssii.demogeofences2.Objects.Concept;
+import com.ssii.demogeofences2.Objects.ShownConcept;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -37,14 +40,19 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     String currentPlace;
     HashMap<String, Concept> concepts;
     HashMap<String, Concept> knownTaughtConcepts;
+    HashMap<String, ShownConcept> taughtConcepts;
     Concept currentConcept;
     Set<String> conceptsKeys;
+    String appearanceTime, shownTextTime;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn);
         knownTaughtConcepts = new HashMap<>();
+        taughtConcepts = new HashMap<>();
+
         initializeComponents();
         loadVocabulary();
     }
@@ -92,6 +100,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 currentConcept.setWeight(15);
+                taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getWeight()));
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -101,6 +110,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 currentConcept.setWeight(10);
+                taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getWeight()));
                 conceptsKeys.remove(currentConcept.getName());
                 knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
@@ -134,13 +144,18 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //Guardar los conceptos aprendidos con los pesos actualizados
-                                    initializeEvaluationActivity();
+                                    saveTaughtConcepts();
+
                                 }
                             });
             AlertDialog alert = builder.create();
             alert.show();
         }
 
+    }
+
+    private void saveTaughtConcepts() {
+        vocabularyManager.sendTaughtConcepts(taughtConcepts);
     }
 
     private void initializeMainActivity() {
@@ -162,10 +177,16 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 .using(new FirebaseImageLoader())
                 .load(gsReference)
                 .into(imagenViewConcept);
+        Date date = new Date();
+        appearanceTime = dateFormat.format(date);
+
+
 
     }
 
     private void showName() {
+        Date date = new Date();
+        shownTextTime = dateFormat.format(date);
         nameConceptTextV.setVisibility(View.VISIBLE);
         if(!knownTaughtConcepts.containsKey(currentConcept.getName())) {
             unknowButton.setVisibility(View.VISIBLE);
