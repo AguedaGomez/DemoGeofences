@@ -6,6 +6,18 @@ package com.ssii.demogeofences2.Objects;
 
 public class ShownConcept {
 
+    private String appearanceTime;
+    private String showTextTime;
+    private String nameConcept;
+    private int error;
+
+
+    public ShownConcept(String appearanceTime, String showTextTime, String nameConcept) {
+        this.appearanceTime = appearanceTime;
+        this.showTextTime = showTextTime;
+        this.nameConcept = nameConcept;
+    }
+
     public String getAppearanceTime() {
         return appearanceTime;
     }
@@ -22,21 +34,19 @@ public class ShownConcept {
         this.showTextTime = showTextTime;
     }
 
-    public int getWeigth() {
-        return weigth;
+    public String getNameConcept() {
+        return nameConcept;
     }
 
-    public void setWeigth(int weigth) {
-        this.weigth = weigth;
+    public void setNameConcept(String nameConcept) {
+        this.nameConcept = nameConcept;
     }
 
-    private String appearanceTime;
-    private String showTextTime;
-    private int weigth;
+    public int getError() {
+        return error;
+    }
 
-    public ShownConcept(String appearanceTime, String showTextTime, int weigth) {
-        this.appearanceTime = appearanceTime;
-        this.showTextTime = showTextTime;
-        this.weigth = weigth;
+    public void setError(int error) {
+        this.error = error;
     }
 }

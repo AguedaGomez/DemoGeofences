@@ -35,8 +35,9 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     TextView nameConceptTextV;
     FloatingActionButton nextFAButton;
 
-    VocabularyData vocabularyData;
+    VocabularyDataManager vocabularyDataManager;
     VocabularyManager vocabularyManager;
+    VocabularyDManager vocabularyDManager;
     String currentPlace;
     HashMap<String, Concept> concepts;
     HashMap<String, Concept> knownTaughtConcepts;
@@ -60,11 +61,15 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     private void loadVocabulary() {
         Bundle bundle = getIntent().getExtras();
         currentPlace = bundle.getString("currentPlace");
-        vocabularyData = new VocabularyData();
-        vocabularyManager = new VocabularyManager();
-        vocabularyData.addObserver(this);
+        vocabularyDManager = VocabularyDManager.getInstance();
+        vocabularyDManager.addObserver(this);
+        //vocabularyDataManager = new VocabularyDataManager();
+        //vocabularyManager = new VocabularyManager();
+        //vocabularyDataManager.addObserver(this);
+        //vocabularyManager.addObserver(this);
         Log.d("TEST", "DESPUÉS DE AÑADIR OBSERVADORES");
-        vocabularyData.getVocabulary(currentPlace);
+        //vocabularyDataManager.getVocabulary(currentPlace);
+        vocabularyDManager.getVocabulary(currentPlace);
 
     }
 
@@ -99,8 +104,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         unknowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentConcept.setWeight(15);
-                taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getWeight()));
+                taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -109,8 +113,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         knowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentConcept.setWeight(10);
-                taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getWeight()));
+                taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
                 conceptsKeys.remove(currentConcept.getName());
                 knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
@@ -155,7 +158,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveTaughtConcepts() {
-        vocabularyManager.sendTaughtConcepts(taughtConcepts);
+        vocabularyDataManager.sendTaughtConcepts(taughtConcepts, currentPlace);
     }
 
     private void initializeMainActivity() {
@@ -165,7 +168,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     private void initializeEvaluationActivity() {
         Intent intent = new Intent(this, EvaluationActivity.class);
-        intent.putExtra("knownTaughtConcepts", knownTaughtConcepts);
+        intent.putExtra("currentPlace", currentPlace);
         startActivity(intent);
     }
 
@@ -179,9 +182,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 .into(imagenViewConcept);
         Date date = new Date();
         appearanceTime = dateFormat.format(date);
-
-
-
     }
 
     private void showName() {
@@ -205,11 +205,18 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     @Override
     public void update(Observable observable, Object o) {
-        concepts = (HashMap<String, Concept>)o;
-        conceptsKeys = new HashSet<>(concepts.keySet());
-        conceptsKeys.removeAll(knownTaughtConcepts.keySet());
-        chooseConcept();
-        Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
+       if(observable instanceof VocabularyDataManager) {
+           concepts = VocabularyDataManager.conceptsCurrentPlace;
+           conceptsKeys = new HashSet<>(concepts.keySet());
+           conceptsKeys.removeAll(knownTaughtConcepts.keySet());
+           chooseConcept();
+           Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
+       }
+       else if (observable instanceof VocabularyManager) {
+           Log.d("TEST", "en update");
+           initializeEvaluationActivity();
+       }
+
     }
 
 

@@ -88,6 +88,18 @@ public class MainActivity extends AppCompatActivity {
                 initializeLearnActivity();
             }
         });
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initializeEvaluationActivity();
+            }
+        });
+    }
+
+    private void initializeEvaluationActivity() {
+        Intent intent = new Intent(this, EvaluationActivity.class);
+        intent.putExtra("currentPlace", currentPlace);
+        startActivity(intent);
     }
 
     private void initializeLearnActivity() {
