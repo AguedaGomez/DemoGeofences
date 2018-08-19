@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.ssii.demogeofences2.MainActivity">
 
+    <include layout="@layout/toolbar" />
+
     <LinearLayout
-        android:layout_width="357dp"
-        android:layout_height="416dp"
-        android:layout_marginBottom="36dp"
-        android:gravity="bottom|center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom|center_vertical|center_horizontal"
         android:orientation="vertical"
         android:paddingBottom="@android:dimen/app_icon_size"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.518"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:id="@+id/linearLayout2">
 
         <ImageButton
             android:id="@+id/locationButton"
@@ -26,10 +24,10 @@
             android:layout_height="60dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
+            android:layout_marginBottom="2dp"
             android:layout_marginTop="48dp"
             android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            android:layout_marginBottom="2dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:srcCompat="@drawable/ic_marker"
@@ -63,24 +61,11 @@
             android:layout_height="50dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/blackbuttondesing"
+            android:fontFamily="@font/convergence"
             android:text="EVALUAR"
             android:textColor="@color/common_google_signin_btn_text_light_focused"
-            android:fontFamily="@font/convergence"
             android:textSize="24sp" />
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="402dp"
-        android:layout_height="99dp"
-        android:background="@android:color/transparent"
-        android:elevation="2dp"
-        android:visibility="visible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </RelativeLayout>
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>
