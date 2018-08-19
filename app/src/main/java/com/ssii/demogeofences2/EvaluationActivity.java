@@ -14,6 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -32,7 +35,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     final int FIRST_INDEX = 0;
 
     Button checkButton;
-    ProgressBar progressBar;
+    ProgressBar progressBar, loadProgressBar;
     ImageView imageView;
     EditText inputNameConcept;
     TextView correctNameText;
@@ -60,8 +63,6 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Log.d("TEST", "dESPUÉS");
 
         orderedConceptList = new ArrayList<>();
-        //vocabularyDataManager = new VocabularyDataManager();
-       // vocabularyDataManager.addObserver(this);
         vocabularyDManager.addObserver(this);
         Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDManager.conceptsCurrentPlace.size());
         if (vocabularyDManager.conceptsCurrentPlace.size() <= 0)
@@ -78,6 +79,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         correctNameText.setText("");
         nextFAButton = findViewById(R.id.nextFloatingButton);
         nextFAButton.setVisibility(View.INVISIBLE);
+        loadProgressBar = findViewById(R.id.loadProgressBar);
 
         checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +96,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             }
         });
 
-        progressBar.setMax(MAX_CONCEPTS);
+        loadProgressBar.setMax(MAX_CONCEPTS);
 
     }
 
@@ -121,6 +123,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         nextFAButton.setVisibility(View.INVISIBLE);
         checkButton.setVisibility(View.VISIBLE);
         inputNameConcept.setText("");
+        correctNameText.setText("");
         enableEditText(true);
         inputNameConcept.setTextColor(Color.DKGRAY);
         currentConcept = VocabularyDManager.conceptsCurrentPlace.get(orderedConceptList.get(FIRST_INDEX).getName());
@@ -130,6 +133,19 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Glide.with(this)
                 .using(new FirebaseImageLoader())
                 .load(gsReference)
+                .listener(new RequestListener<StorageReference, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
                 .into(imageView);
 
     }
@@ -172,7 +188,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         orderedConcept.setPosition(position);
         Collections.sort(orderedConceptList);
         index++;
-        progressBar.setProgress(index);
+        loadProgressBar.setProgress(index);
         nextFAButton.setVisibility(View.VISIBLE);
         checkButton.setVisibility(View.INVISIBLE);
     }

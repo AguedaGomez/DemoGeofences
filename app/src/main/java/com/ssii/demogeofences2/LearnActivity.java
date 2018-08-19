@@ -10,19 +10,26 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ssii.demogeofences2.Objects.Concept;
+import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -35,17 +42,18 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     TextView nameConceptTextV;
     FloatingActionButton nextFAButton;
 
-    VocabularyDataManager vocabularyDataManager;
-    VocabularyManager vocabularyManager;
     VocabularyDManager vocabularyDManager;
     String currentPlace;
     HashMap<String, Concept> concepts;
     HashMap<String, Concept> knownTaughtConcepts;
     HashMap<String, ShownConcept> taughtConcepts;
+    List<OrderedConcept> orderedConceptList;
     Concept currentConcept;
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+    ProgressBar progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +61,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         setContentView(R.layout.activity_learn);
         knownTaughtConcepts = new HashMap<>();
         taughtConcepts = new HashMap<>();
-
+        orderedConceptList = new ArrayList<>();
         initializeComponents();
         loadVocabulary();
     }
@@ -63,12 +71,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         currentPlace = bundle.getString("currentPlace");
         vocabularyDManager = VocabularyDManager.getInstance();
         vocabularyDManager.addObserver(this);
-        //vocabularyDataManager = new VocabularyDataManager();
-        //vocabularyManager = new VocabularyManager();
-        //vocabularyDataManager.addObserver(this);
-        //vocabularyManager.addObserver(this);
         Log.d("TEST", "DESPUÉS DE AÑADIR OBSERVADORES");
-        //vocabularyDataManager.getVocabulary(currentPlace);
         vocabularyDManager.getVocabulary(currentPlace);
 
     }
@@ -78,6 +81,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         knowButton = (Button)findViewById(R.id.knowButton);
         homeButton = (Button)findViewById(R.id.homeButton);
         testButton = (Button)findViewById(R.id.testButton);
+        progressBar = findViewById(R.id.progressBar);
 
         imagenViewConcept = (ImageView)findViewById(R.id.imageViewConcept);
         nameConceptTextV = (TextView)findViewById(R.id.nameConceptTextV);
@@ -121,6 +125,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 knowButton.setVisibility(View.INVISIBLE);
             }
         });
+
     }
 
     private void chooseConcept() {
@@ -128,6 +133,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         if (conceptsKeys.size() > 0) {
             Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
             currentConcept = concepts.get(key);
+            OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, 0);
+            orderedConceptList.add(orderedConcept);
             showConcept(currentConcept);
         }
         else {
@@ -148,6 +155,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //Guardar los conceptos aprendidos con los pesos actualizados
                                     saveTaughtConcepts();
+                                    saveConceptsInOrder();
 
                                 }
                             });
@@ -157,8 +165,12 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     }
 
+    private void saveConceptsInOrder() {
+        vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptList, currentPlace);
+    }
+
     private void saveTaughtConcepts() {
-        vocabularyDataManager.sendTaughtConcepts(taughtConcepts, currentPlace);
+        vocabularyDManager.sendTaughtConcepts(taughtConcepts, currentPlace);
     }
 
     private void initializeMainActivity() {
@@ -179,6 +191,19 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         Glide.with(this)
                 .using(new FirebaseImageLoader())
                 .load(gsReference)
+                .listener(new RequestListener<StorageReference, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, StorageReference model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
                 .into(imagenViewConcept);
         Date date = new Date();
         appearanceTime = dateFormat.format(date);

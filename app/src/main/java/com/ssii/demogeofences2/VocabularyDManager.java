@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.ssii.demogeofences2.Objects.Concept;
 import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
@@ -108,6 +109,21 @@ public class VocabularyDManager extends Observable{
         }
         setChanged();
         notifyObservers();
+
+    }
+
+    public void sendTaughtConceptsInOrder(List<OrderedConcept>concepts, String currentPlace) {
+
+        for (OrderedConcept oc: concepts) {
+            DocumentReference usersPlace = db.collection("users").document("prueba").collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName());
+            usersPlace.set(concepts, SetOptions.merge())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("TEST", "ORDENADOS ENVIADOS");
+                        }
+                    });
+        }
 
     }
 }
