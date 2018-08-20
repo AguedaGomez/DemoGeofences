@@ -24,6 +24,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
 
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/convergence"
+            android:text="0/7" />
+
         <ProgressBar
             android:id="@+id/loadProgressBar"
             style="?android:attr/progressBarStyleHorizontal"

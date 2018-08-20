@@ -16,6 +16,7 @@ public class ShownConcept {
         this.appearanceTime = appearanceTime;
         this.showTextTime = showTextTime;
         this.nameConcept = nameConcept;
+        this.error = -1;
     }
 
     public String getAppearanceTime() {

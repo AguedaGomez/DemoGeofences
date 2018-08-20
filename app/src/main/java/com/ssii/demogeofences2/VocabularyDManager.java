@@ -129,4 +129,20 @@ public class VocabularyDManager extends Observable{
         notifyObservers("sendTaughtConceptsInOrder");
 
     }
+
+    public void sendEvaluatedConcepts(HashMap<String, ShownConcept> concepts, String currentPlace) {
+        CollectionReference users = db.collection("users").document("prueba").collection("actions").document("evaluatedConcepts").collection(currentPlace);
+        for (ShownConcept sc: concepts.values()) {
+            users
+                    .add(sc)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+
+                        }
+                    });
+        }
+        setChanged();
+        notifyObservers("sendEvaluatedConcepts");
+    }
 }

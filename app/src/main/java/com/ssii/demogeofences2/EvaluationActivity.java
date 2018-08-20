@@ -1,8 +1,11 @@
 package com.ssii.demogeofences2;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,9 +25,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ssii.demogeofences2.Objects.Concept;
 import com.ssii.demogeofences2.Objects.OrderedConcept;
+import com.ssii.demogeofences2.Objects.ShownConcept;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -33,21 +40,25 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
     final int MAX_CONCEPTS = 7;
     final int FIRST_INDEX = 0;
+    final String PROGRESS = "/" + MAX_CONCEPTS;
 
     Button checkButton;
     ProgressBar progressBar, loadProgressBar;
     ImageView imageView;
     EditText inputNameConcept;
-    TextView correctNameText;
+    TextView correctNameText, progressText;
     FloatingActionButton nextFAButton;
-
 
     VocabularyDManager vocabularyDManager;
     String currentPlace;
     List<OrderedConcept> orderedConceptList;
-    int index;
+    HashMap<String, OrderedConcept> orderedConceptHashMap;
+    HashMap<String, ShownConcept> evaluatedConcepts;
+    int index, currentError;
     Concept currentConcept;
     FirebaseStorage storage = FirebaseStorage.getInstance();
+    String appearanceTime, shownTextTime;
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +66,8 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         setContentView(R.layout.activity_evaluation);
 
         index = 0;
+        evaluatedConcepts = new HashMap<>();
+        orderedConceptHashMap = new HashMap<>();
         vocabularyDManager = VocabularyDManager.getInstance();
         initializeComponents();
         Log.d("TEST", "aNTES DEL bUNDLE");
@@ -75,12 +88,14 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         progressBar = (ProgressBar)findViewById(R.id.progressBar);
         imageView = findViewById(R.id.imageView);
         inputNameConcept = (EditText) findViewById(R.id.inputNameConcept);
+        progressText = findViewById(R.id.progressText);
         correctNameText = findViewById(R.id.correctName);
         correctNameText.setText("");
         nextFAButton = findViewById(R.id.nextFloatingButton);
         nextFAButton.setVisibility(View.INVISIBLE);
         loadProgressBar = findViewById(R.id.loadProgressBar);
 
+        progressText.setText(index + PROGRESS);
         checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,7 +107,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         nextFAButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                chooseConcept();
+                nextClick();
             }
         });
 
@@ -115,21 +130,45 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                 default:
                     break;
         }
-      /*  if (o == null) {
-            // get all vocabulary is completed
-            Log.d("TEST", "ya se han cargado todas las palabras del vocabulario");
-            vocabularyDManager.getOrderedConcepts(currentPlace);
+    }
+
+    private void nextClick() {
+        if (index >= 7) {
+            vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts, currentPlace);
+            for (OrderedConcept o: orderedConceptList) {
+                orderedConceptHashMap.put(o.getName(), o);
+            }
+            vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptHashMap, currentPlace);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            //AQUI RESUMEN?
+            builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")
+                    .setCancelable(false)
+                    .setPositiveButton("Volver",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    initializeMainActivity();
+
+
+                                }
+                            });
+            AlertDialog alert = builder.create();
+            alert.show();
         }
         else {
-
-            Log.d("TEST", "ordenando");
-            orderedConceptList = (List<OrderedConcept>)o;
-            Log.d("TEST", "1");
-            Collections.sort(orderedConceptList);
-            Log.d("TEST", "2");
+            ShownConcept newShownConcept = new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName());
+            newShownConcept.setError(currentError);
+            evaluatedConcepts.put(currentConcept.toString(), newShownConcept);
             chooseConcept();
-        }*/
+        }
 
+
+    }
+
+    private void initializeMainActivity() {
+        vocabularyDManager.deleteObserver(this);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     private void chooseConcept() {
@@ -139,6 +178,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         correctNameText.setText("");
         enableEditText(true);
         inputNameConcept.setTextColor(Color.DKGRAY);
+
         currentConcept = VocabularyDManager.conceptsCurrentPlace.get(orderedConceptList.get(FIRST_INDEX).getName());
 
         // Show concept image
@@ -156,10 +196,13 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                     @Override
                     public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                         progressBar.setVisibility(View.GONE);
+                        Date date = new Date();
+                        appearanceTime = dateFormat.format(date);
                         return false;
                     }
                 })
                 .into(imageView);
+
 
     }
 
@@ -167,7 +210,6 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Log.d("TEST", "checkAnswer");
         boolean correct = false;
         String answer = inputNameConcept.getText().toString();
-        Log.d("TEST", "longitud answer: " + answer.length());
         if (answer.length()==0) {
             Toast.makeText(this, "Escribe el nombre del concepto", Toast.LENGTH_LONG).show();
             return;
@@ -177,11 +219,14 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             Log.d("TEST", "RESPUESTA CORRECTA");
             inputNameConcept.setTextColor(Color.rgb(0,128,0));
             correct = true;
+            currentError = 0;
         }
         else {
             correctNameText.setText(currentConcept.getName());
+            currentError = 1;
         }
-
+        Date date = new Date();
+        shownTextTime = dateFormat.format(date);
 
         inputNameConcept.setText(answer);
         enableEditText(false);
@@ -196,7 +241,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         else
             orderedConcept.setStrength(0);
         strenght = orderedConcept.getStrength();
-        int position = (int)Math.pow(2, strenght);
+        int position = orderedConceptList.indexOf(orderedConcept) + (int)Math.pow(2, strenght+1);
         Log.d("TEST", "NUEVA POSICION de "+ orderedConcept.getName() + " es " + position);
         orderedConcept.setPosition(position);
         Collections.sort(orderedConceptList);
@@ -204,6 +249,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         loadProgressBar.setProgress(index);
         nextFAButton.setVisibility(View.VISIBLE);
         checkButton.setVisibility(View.INVISIBLE);
+        progressText.setText(index + PROGRESS);
     }
 
     private void enableEditText(boolean editable) {
