@@ -25,11 +25,9 @@ import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -47,7 +45,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     HashMap<String, Concept> concepts;
     HashMap<String, Concept> knownTaughtConcepts;
     HashMap<String, ShownConcept> taughtConcepts;
-    List<OrderedConcept> orderedConceptList;
+    HashMap<String, OrderedConcept> orderedConcepts;
     Concept currentConcept;
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
@@ -61,7 +59,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         setContentView(R.layout.activity_learn);
         knownTaughtConcepts = new HashMap<>();
         taughtConcepts = new HashMap<>();
-        orderedConceptList = new ArrayList<>();
+        orderedConcepts = new HashMap<>();
         initializeComponents();
         loadVocabulary();
     }
@@ -133,8 +131,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         if (conceptsKeys.size() > 0) {
             Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
             currentConcept = concepts.get(key);
-            OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, 0);
-            orderedConceptList.add(orderedConcept);
+            OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, 0);
+            orderedConcepts.put(currentConcept.getName(), orderedConcept);
             showConcept(currentConcept);
         }
         else {
@@ -155,7 +153,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //Guardar los conceptos aprendidos con los pesos actualizados
                                     saveTaughtConcepts();
-                                    saveConceptsInOrder();
+
 
                                 }
                             });
@@ -166,7 +164,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
-        vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptList, currentPlace);
+        vocabularyDManager.sendTaughtConceptsInOrder(orderedConcepts, currentPlace);
     }
 
     private void saveTaughtConcepts() {
@@ -230,15 +228,17 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     @Override
     public void update(Observable observable, Object o) {
-       if(observable instanceof VocabularyDataManager) {
-           concepts = VocabularyDataManager.conceptsCurrentPlace;
+       if(o.toString().equals("getVocabulary")) {
+           concepts = VocabularyDManager.conceptsCurrentPlace;
            conceptsKeys = new HashSet<>(concepts.keySet());
            conceptsKeys.removeAll(knownTaughtConcepts.keySet());
            chooseConcept();
            Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
+      }
+      else if (o.toString().equals("sendTaughtConcepts")) {
+           saveConceptsInOrder();
        }
-       else if (observable instanceof VocabularyManager) {
-           Log.d("TEST", "en update");
+      else if (o.toString().equals("sendTaughtConceptsInOrder")) {
            initializeEvaluationActivity();
        }
 

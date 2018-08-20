@@ -58,7 +58,7 @@ public class VocabularyDManager extends Observable{
                                 conceptsCurrentPlace.put(name, concept);
                             }
                             setChanged();
-                            notifyObservers();
+                            notifyObservers("getVocabulary");
 
                         } else {
                             Log.w("TEST", "Error getting documents.", task.getException());
@@ -108,15 +108,15 @@ public class VocabularyDManager extends Observable{
                     });
         }
         setChanged();
-        notifyObservers();
+        notifyObservers("sendTaughtConcepts");
 
     }
 
-    public void sendTaughtConceptsInOrder(List<OrderedConcept>concepts, String currentPlace) {
+    public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts, String currentPlace) {
 
-        for (OrderedConcept oc: concepts) {
+        for (OrderedConcept oc: concepts.values()) {
             DocumentReference usersPlace = db.collection("users").document("prueba").collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName());
-            usersPlace.set(concepts, SetOptions.merge())
+            usersPlace.set(oc, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -124,6 +124,8 @@ public class VocabularyDManager extends Observable{
                         }
                     });
         }
+        setChanged();
+        notifyObservers("sendTaughtConceptsInOrder");
 
     }
 }
