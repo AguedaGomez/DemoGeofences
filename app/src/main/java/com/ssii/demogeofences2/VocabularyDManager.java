@@ -16,9 +16,7 @@ import com.ssii.demogeofences2.Objects.Concept;
 import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Observable;
 
 /**
@@ -33,10 +31,12 @@ public class VocabularyDManager extends Observable{
     }
 
     public static HashMap<String, Concept> conceptsCurrentPlace; // All concepts of current place
+    public static HashMap<String, OrderedConcept> conceptsToEvaluate;
 
     private VocabularyDManager() {
         Log.d("TEST", "CREANDO CONCEPS");
         conceptsCurrentPlace = new HashMap<>();
+        conceptsToEvaluate = new HashMap<>();
     }
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -69,7 +69,6 @@ public class VocabularyDManager extends Observable{
 
     public void getOrderedConcepts(String currentCategory) { // Tiene que ser los conceptos con el orden y la fuerza
         Log.d("TEST", "en getOrderedConcepts");
-        final List<OrderedConcept> conceptsToEvaluate = new ArrayList<>();
         db.collection("users/prueba/actions/taughtConceptsInOrder/" + currentCategory)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -82,11 +81,13 @@ public class VocabularyDManager extends Observable{
                                 int strength = Integer.valueOf(document.getData().get("strength").toString());
                                 int position = Integer.valueOf(document.getData().get("position").toString());
                                 OrderedConcept orderedConcept = new OrderedConcept(name, strength, position);
-                                conceptsToEvaluate.add(orderedConcept);
+                                conceptsToEvaluate.put(name, orderedConcept);
                                 Log.d("TEST", "Añadidios los conceptos ordenados");
                             }
+                            Log.d("TEST", "conceptsToEvaluate tienen: " + conceptsToEvaluate.size());
                             setChanged();
-                            notifyObservers(conceptsToEvaluate);
+                            //notifyObservers(conceptsToEvaluate);
+                            notifyObservers("getOrderedConcepts");
 
                         } else {
                             Log.w("TEST", "Error getting documents.", task.getException());

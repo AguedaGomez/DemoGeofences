@@ -62,7 +62,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         currentPlace = bundle.getString("currentPlace");
         Log.d("TEST", "dESPUÉS");
 
-        orderedConceptList = new ArrayList<>();
+       // orderedConceptList = new ArrayList<>();
         vocabularyDManager.addObserver(this);
         Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDManager.conceptsCurrentPlace.size());
         if (vocabularyDManager.conceptsCurrentPlace.size() <= 0)
@@ -102,7 +102,20 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        if (o == null) {
+        switch (o.toString()) {
+            case "getOrderedConcepts":
+                Log.d("TEST", "después de gtOrderedConcepts");
+                orderedConceptList = new ArrayList<>(VocabularyDManager.conceptsToEvaluate.values());
+                Collections.sort(orderedConceptList);
+                chooseConcept();
+                break;
+            case "getVocabulary":
+                vocabularyDManager.getOrderedConcepts(currentPlace);
+                break;
+                default:
+                    break;
+        }
+      /*  if (o == null) {
             // get all vocabulary is completed
             Log.d("TEST", "ya se han cargado todas las palabras del vocabulario");
             vocabularyDManager.getOrderedConcepts(currentPlace);
@@ -115,7 +128,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             Collections.sort(orderedConceptList);
             Log.d("TEST", "2");
             chooseConcept();
-        }
+        }*/
 
     }
 

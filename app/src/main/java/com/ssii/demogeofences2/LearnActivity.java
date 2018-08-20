@@ -39,6 +39,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     ImageView imagenViewConcept;
     TextView nameConceptTextV;
     FloatingActionButton nextFAButton;
+    ProgressBar progressBar;
 
     VocabularyDManager vocabularyDManager;
     String currentPlace;
@@ -50,7 +51,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-    ProgressBar progressBar;
+
 
 
     @Override
@@ -70,7 +71,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         vocabularyDManager = VocabularyDManager.getInstance();
         vocabularyDManager.addObserver(this);
         Log.d("TEST", "DESPUÉS DE AÑADIR OBSERVADORES");
-        vocabularyDManager.getVocabulary(currentPlace);
+        vocabularyDManager.getOrderedConcepts(currentPlace);
 
     }
 
@@ -132,7 +133,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
             currentConcept = concepts.get(key);
             OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, 0);
-            orderedConcepts.put(currentConcept.getName(), orderedConcept);
+            if(!orderedConcepts.containsKey(currentConcept.getName()))
+                orderedConcepts.put(currentConcept.getName(), orderedConcept);
             showConcept(currentConcept);
         }
         else {
@@ -172,11 +174,13 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void initializeMainActivity() {
+        vocabularyDManager.deleteObserver(this);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
     private void initializeEvaluationActivity() {
+        vocabularyDManager.deleteObserver(this);
         Intent intent = new Intent(this, EvaluationActivity.class);
         intent.putExtra("currentPlace", currentPlace);
         startActivity(intent);
@@ -228,19 +232,40 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     @Override
     public void update(Observable observable, Object o) {
-       if(o.toString().equals("getVocabulary")) {
+        switch (o.toString()) {
+            case "getVocabulary":
+                concepts = VocabularyDManager.conceptsCurrentPlace;
+                conceptsKeys = new HashSet<>(concepts.keySet());
+                conceptsKeys.removeAll(knownTaughtConcepts.keySet());
+                chooseConcept();
+                Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
+                break;
+            case "getOrderedConcepts":
+                orderedConcepts = VocabularyDManager.conceptsToEvaluate;
+                //Log.d("TEST", "ORDERED CONCEPTS TIENE: " + orderedConcepts.size());
+                vocabularyDManager.getVocabulary(currentPlace);
+                break;
+            case "sendTaughtConcepts":
+                saveConceptsInOrder();
+                break;
+            case "sendTaughtConceptsInOrder":
+                initializeEvaluationActivity();
+                break;
+        }
+      /* if(o.toString().equals("getVocabulary")) {
            concepts = VocabularyDManager.conceptsCurrentPlace;
            conceptsKeys = new HashSet<>(concepts.keySet());
            conceptsKeys.removeAll(knownTaughtConcepts.keySet());
            chooseConcept();
            Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
       }
+
       else if (o.toString().equals("sendTaughtConcepts")) {
            saveConceptsInOrder();
        }
       else if (o.toString().equals("sendTaughtConceptsInOrder")) {
            initializeEvaluationActivity();
-       }
+       }*/
 
     }
 
