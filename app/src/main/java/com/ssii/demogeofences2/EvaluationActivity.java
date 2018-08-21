@@ -53,12 +53,12 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     String currentPlace;
     List<OrderedConcept> orderedConceptList;
     HashMap<String, OrderedConcept> orderedConceptHashMap;
-    HashMap<String, ShownConcept> evaluatedConcepts;
+    HashMap<Integer, ShownConcept> evaluatedConcepts;
     int index, currentError;
     Concept currentConcept;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     String appearanceTime, shownTextTime;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +134,10 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
     private void nextClick() {
         if (index >= 7) {
+            ShownConcept newShownConcept = new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName());
+            newShownConcept.setError(currentError);
+            Log.d("TEST", "El error es: " + newShownConcept.getError());
+            evaluatedConcepts.put(index, newShownConcept);
             vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts, currentPlace);
             for (OrderedConcept o: orderedConceptList) {
                 orderedConceptHashMap.put(o.getName(), o);
@@ -158,7 +162,9 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         else {
             ShownConcept newShownConcept = new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName());
             newShownConcept.setError(currentError);
-            evaluatedConcepts.put(currentConcept.toString(), newShownConcept);
+            Log.d("TEST", "El error es: " + newShownConcept.getError());
+            evaluatedConcepts.put(index, newShownConcept);
+            Log.d("TEST", "Añadiendo nuevo shown concept");
             chooseConcept();
         }
 

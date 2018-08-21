@@ -50,7 +50,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     Concept currentConcept;
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 
 

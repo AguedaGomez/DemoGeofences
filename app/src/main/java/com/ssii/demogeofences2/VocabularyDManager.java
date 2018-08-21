@@ -130,7 +130,7 @@ public class VocabularyDManager extends Observable{
 
     }
 
-    public void sendEvaluatedConcepts(HashMap<String, ShownConcept> concepts, String currentPlace) {
+    public void sendEvaluatedConcepts(HashMap<Integer, ShownConcept> concepts, String currentPlace) {
         CollectionReference users = db.collection("users").document("prueba").collection("actions").document("evaluatedConcepts").collection(currentPlace);
         for (ShownConcept sc: concepts.values()) {
             users
