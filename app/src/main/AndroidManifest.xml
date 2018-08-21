@@ -29,7 +29,8 @@
             android:allowBackup="true" />
 
         <activity android:name=".LearnActivity" />
-        <activity android:name=".EvaluationActivity"></activity>
+        <activity android:name=".EvaluationActivity" />
+        <activity android:name=".Account.SignUpActivity"></activity>
     </application>
 
 </manifest>
