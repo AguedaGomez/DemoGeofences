@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,7 +35,6 @@ public class VocabularyDManager extends Observable{
     public static HashMap<String, OrderedConcept> conceptsToEvaluate;
 
     private VocabularyDManager() {
-        Log.d("TEST", "CREANDO CONCEPS");
         conceptsCurrentPlace = new HashMap<>();
         conceptsToEvaluate = new HashMap<>();
     }
@@ -144,5 +144,21 @@ public class VocabularyDManager extends Observable{
         }
         setChanged();
         notifyObservers("sendEvaluatedConcepts");
+    }
+
+    public void createUser(String age, String genre) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        HashMap<String, Object> userData = new HashMap<>();
+        userData.put("age", age);
+        userData.put("genre", genre);
+        String email = auth.getCurrentUser().getEmail();
+        db.collection("users").document(email)
+                .set(userData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("TEST", "Se ha creado los datos del usuario en Firestore con éxito");
+                    }
+                });
     }
 }
