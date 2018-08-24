@@ -28,7 +28,7 @@
             android:layout_marginHorizontal="16dp"
             android:fontFamily="@font/convergence"
             android:inputType="textEmailAddress"
-            android:text="Email" />
+            android:hint="@string/hint_email" />
 
         <EditText
             android:id="@+id/passwordText"
@@ -38,7 +38,7 @@
             android:layout_marginHorizontal="16dp"
             android:fontFamily="@font/convergence"
             android:inputType="textPassword"
-            android:text="Contraseña" />
+            android:hint="@string/hint_password" />
 
         <Button
             android:id="@+id/logInButton"
@@ -47,7 +47,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginHorizontal="16dp"
             android:background="@drawable/blackbuttondesing"
-            android:text="Iniciar Sesión" />
+            android:text="@string/login_button_text" />
 
         <TextView
             android:id="@+id/SingupText"
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/convergence"
-            android:text="Registarme"
+            android:text="@string/register_button_text"
             android:textAlignment="center" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

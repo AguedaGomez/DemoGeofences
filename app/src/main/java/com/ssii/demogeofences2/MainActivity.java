@@ -13,6 +13,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -27,6 +30,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.ssii.demogeofences2.Account.LogInActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +48,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationInfo locationInfo;
     private double currentLat, currentLong;
     private String currentPlace = ""; //Enum?
+    private String user_name;
 
 
     TextView tv, localizationInfo;
     Button testButton, learnButton;
     ImageButton locationButton;
+    android.support.v7.widget.Toolbar toolbar;
     List<Geofence> geofences;
 
 
@@ -56,9 +63,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Bundle bundle = getIntent().getExtras();
+        user_name = bundle.getString("user_name");
+
         geofences = new ArrayList<>();
-
-
         localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
 
         locationInfo = new LocationInfo();
@@ -73,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void InitButtons() {
+        toolbar = findViewById(R.id.mtoolbar);
+        setSupportActionBar(toolbar);
         locationButton = (ImageButton)findViewById(R.id.locationButton);
         learnButton = (Button)findViewById(R.id.learnButton);
         testButton = (Button)findViewById(R.id.testButton);
@@ -94,6 +104,35 @@ public class MainActivity extends AppCompatActivity {
                 initializeEvaluationActivity();
             }
         });
+        getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_logout:
+                logout();
+                return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        initializeLogInActivity();
+    }
+
+    private void initializeLogInActivity() {
+        Intent intent = new Intent(this, LogInActivity.class);
+        startActivity(intent);
     }
 
     private void initializeEvaluationActivity() {

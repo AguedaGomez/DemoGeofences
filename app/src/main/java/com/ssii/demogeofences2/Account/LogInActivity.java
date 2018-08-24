@@ -27,6 +27,7 @@ public class LogInActivity extends AppCompatActivity {
     TextView signup;
 
     FirebaseAuth auth;
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,7 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void checkUserActive() {
-        FirebaseUser user = auth.getCurrentUser();
+        user = auth.getCurrentUser();
         if (user != null) {
             Log.d("TEST", "YA ESTÁ REGISTRADO");
             initializeMainActivity();
@@ -64,7 +65,7 @@ public class LogInActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    FirebaseUser user = auth.getCurrentUser();
+                                    user = auth.getCurrentUser();
                                     initializeMainActivity();
                                 } else {
                                     Toast.makeText(LogInActivity.this, "No se pudo iniciar sesión",
@@ -94,6 +95,8 @@ public class LogInActivity extends AppCompatActivity {
 
     private void initializeMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
+        String u_name = user.getEmail().substring(0, user.getEmail().indexOf('@'));
+        intent.putExtra("user_name", u_name);
         startActivity(intent);
     }
 }

@@ -1,17 +1,15 @@
 <resources>
-    <string name="app_name">DemoGeofences2</string>
-    <string name="title_activity_login">Sign in</string>
+    <string name="app_name">LocabulApp</string>
 
-    <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="hint_name">Nombre</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Contraseña</string>
+    <string name="hint_age">Edad</string>
+    <string name="info_text_genre">Género: </string>
+    <string name="f_genre">Femenino</string>
+    <string name="m_genre">Masculino</string>
+    <string name="register_button_text">Registrarme</string>
+    <string name="login_button_text">Iniciar Sesión</string>
+    <string name="logout_button_toolbar">Cerrar Sesión</string>
+
 </resources>

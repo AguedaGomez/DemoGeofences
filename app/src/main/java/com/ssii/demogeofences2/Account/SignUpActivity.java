@@ -58,8 +58,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 Toast.makeText(SignUpActivity.this, "Te has registrado con éxito", Toast.LENGTH_SHORT).show();
                                 vocabularyDManager.createUser(user_age, user_genre);
                                 initializeLogInActivity();
-                            }
-                        }
+                            }                        }
                     });
                 }
             }
