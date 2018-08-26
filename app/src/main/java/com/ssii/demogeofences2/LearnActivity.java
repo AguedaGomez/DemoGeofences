@@ -7,6 +7,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,11 +38,13 @@ import java.util.Set;
 
 public class LearnActivity extends AppCompatActivity implements Observer{
 
-    Button unknowButton, knowButton, homeButton, testButton;
+    Button unknowButton, knowButton;
     ImageView imagenViewConcept;
     TextView nameConceptTextV;
     FloatingActionButton nextFAButton;
     ProgressBar progressBar;
+    android.support.v7.widget.Toolbar toolbar;
+    MenuItem currentItem;
 
     VocabularyDManager vocabularyDManager;
     String currentPlace;
@@ -51,7 +56,9 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
+    String user;
+    String preActivity;
+    StorageReference gsReference;
 
 
     @Override
@@ -68,18 +75,17 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     private void loadVocabulary() {
         Bundle bundle = getIntent().getExtras();
         currentPlace = bundle.getString("currentPlace");
+        user = bundle.getString("user");
         vocabularyDManager = VocabularyDManager.getInstance();
         vocabularyDManager.addObserver(this);
         Log.d("TEST", "DESPUÉS DE AÑADIR OBSERVADORES");
-        vocabularyDManager.getOrderedConcepts(currentPlace);
+        vocabularyDManager.getOrderedConcepts(currentPlace, user);
 
     }
 
     private void initializeComponents() {
         unknowButton = (Button)findViewById(R.id.unknowButton);
         knowButton = (Button)findViewById(R.id.knowButton);
-        homeButton = (Button)findViewById(R.id.homeButton);
-        testButton = (Button)findViewById(R.id.testButton);
         progressBar = findViewById(R.id.progressBar);
 
         imagenViewConcept = (ImageView)findViewById(R.id.imageViewConcept);
@@ -125,6 +131,34 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             }
         });
 
+        toolbar = findViewById(R.id.mtoolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.learn_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_home:
+                currentItem = item;
+                saveTaughtConcepts();
+                return true;
+            case R.id.action_test:
+                currentItem = item;
+                saveTaughtConcepts();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void chooseConcept() {
@@ -166,16 +200,19 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
-        vocabularyDManager.sendTaughtConceptsInOrder(orderedConcepts, currentPlace);
+        vocabularyDManager.sendTaughtConceptsInOrder(orderedConcepts, currentPlace, user);
     }
 
     private void saveTaughtConcepts() {
-        vocabularyDManager.sendTaughtConcepts(taughtConcepts, currentPlace);
+        vocabularyDManager.sendTaughtConcepts(taughtConcepts, currentPlace, user);
     }
 
     private void initializeMainActivity() {
         vocabularyDManager.deleteObserver(this);
+
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("preActivity", "LearnActivity");
+
         startActivity(intent);
     }
 
@@ -183,14 +220,16 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         vocabularyDManager.deleteObserver(this);
         Intent intent = new Intent(this, EvaluationActivity.class);
         intent.putExtra("currentPlace", currentPlace);
+        intent.putExtra("user", user);
+
         startActivity(intent);
     }
 
     private void showConcept(Concept currentConcept) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
+        gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
         nameConceptTextV.setText(currentConcept.getName());
-        Glide.with(this)
+       Glide.with(getApplicationContext())
                 .using(new FirebaseImageLoader())
                 .load(gsReference)
                 .listener(new RequestListener<StorageReference, GlideDrawable>() {
@@ -249,25 +288,14 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 saveConceptsInOrder();
                 break;
             case "sendTaughtConceptsInOrder":
-                initializeEvaluationActivity();
+                if (currentItem.getItemId() == R.id.action_home)
+
+                    initializeMainActivity();
+                else if (currentItem.getItemId()== R.id.action_test)
+                    initializeEvaluationActivity();
                 break;
         }
-      /* if(o.toString().equals("getVocabulary")) {
-           concepts = VocabularyDManager.conceptsCurrentPlace;
-           conceptsKeys = new HashSet<>(concepts.keySet());
-           conceptsKeys.removeAll(knownTaughtConcepts.keySet());
-           chooseConcept();
-           Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
-      }
-
-      else if (o.toString().equals("sendTaughtConcepts")) {
-           saveConceptsInOrder();
-       }
-      else if (o.toString().equals("sendTaughtConceptsInOrder")) {
-           initializeEvaluationActivity();
-       }*/
 
     }
-
 
 }

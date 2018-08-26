@@ -11,5 +11,12 @@
     <string name="register_button_text">Registrarme</string>
     <string name="login_button_text">Iniciar Sesión</string>
     <string name="logout_button_toolbar">Cerrar Sesión</string>
+    <string name="home_button_toolbar">Volver al menú</string>
+    <string name="test_button_toolbar">Evaluar</string>
+    <string name="toast_text_signup_correct">Te has registrado con éxito</string>
+    <string name="toast_text_signup_failure">No se ha podido registrar este usuario</string>
+
+    <string name="evaluation_button">Evaluar</string>
+    <string name="learn_button">Aprender</string>
 
 </resources>

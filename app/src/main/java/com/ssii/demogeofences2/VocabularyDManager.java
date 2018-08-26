@@ -67,9 +67,9 @@ public class VocabularyDManager extends Observable{
                 });
     }
 
-    public void getOrderedConcepts(String currentCategory) { // Tiene que ser los conceptos con el orden y la fuerza
+    public void getOrderedConcepts(String currentCategory, String user) { // Tiene que ser los conceptos con el orden y la fuerza
         Log.d("TEST", "en getOrderedConcepts");
-        db.collection("users/prueba/actions/taughtConceptsInOrder/" + currentCategory)
+        db.collection("users/" + user + "/actions/taughtConceptsInOrder/" + currentCategory)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -96,8 +96,8 @@ public class VocabularyDManager extends Observable{
                 });
     }
 
-    public void sendTaughtConcepts(HashMap<String, ShownConcept> concepts, String currentPlace) {
-        CollectionReference users = db.collection("users").document("prueba").collection("actions").document("taughtConcepts").collection(currentPlace);
+    public void sendTaughtConcepts(HashMap<String, ShownConcept> concepts, String currentPlace, String user) {
+        CollectionReference users = db.collection("users").document(user).collection("actions").document("taughtConcepts").collection(currentPlace);
         for (ShownConcept sc: concepts.values()) {
             users
                     .add(sc)
@@ -113,10 +113,10 @@ public class VocabularyDManager extends Observable{
 
     }
 
-    public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts, String currentPlace) {
+    public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts, String currentPlace, String user) {
 
         for (OrderedConcept oc: concepts.values()) {
-            DocumentReference usersPlace = db.collection("users").document("prueba").collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName());
+            DocumentReference usersPlace = db.collection("users").document(user).collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName());
             usersPlace.set(oc, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -130,8 +130,8 @@ public class VocabularyDManager extends Observable{
 
     }
 
-    public void sendEvaluatedConcepts(HashMap<Integer, ShownConcept> concepts, String currentPlace) {
-        CollectionReference users = db.collection("users").document("prueba").collection("actions").document("evaluatedConcepts").collection(currentPlace);
+    public void sendEvaluatedConcepts(HashMap<Integer, ShownConcept> concepts, String currentPlace, String user) {
+        CollectionReference users = db.collection("users").document(user).collection("actions").document("evaluatedConcepts").collection(currentPlace);
         for (ShownConcept sc: concepts.values()) {
             users
                     .add(sc)

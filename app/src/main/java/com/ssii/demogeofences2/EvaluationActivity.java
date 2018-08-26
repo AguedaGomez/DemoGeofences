@@ -50,7 +50,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     FloatingActionButton nextFAButton;
 
     VocabularyDManager vocabularyDManager;
-    String currentPlace;
+    String currentPlace, user;
     List<OrderedConcept> orderedConceptList;
     HashMap<String, OrderedConcept> orderedConceptHashMap;
     HashMap<Integer, ShownConcept> evaluatedConcepts;
@@ -59,6 +59,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     String appearanceTime, shownTextTime;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    StorageReference gsReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Log.d("TEST", "aNTES DEL bUNDLE");
         Bundle bundle = getIntent().getExtras();
         currentPlace = bundle.getString("currentPlace");
+        user = bundle.getString("user");
         Log.d("TEST", "dESPUÉS");
 
        // orderedConceptList = new ArrayList<>();
@@ -80,7 +82,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDManager.conceptsCurrentPlace.size());
         if (vocabularyDManager.conceptsCurrentPlace.size() <= 0)
             vocabularyDManager.getVocabulary(currentPlace);
-        else vocabularyDManager.getOrderedConcepts(currentPlace);
+        else vocabularyDManager.getOrderedConcepts(currentPlace, user);
     }
 
     private void initializeComponents() {
@@ -125,7 +127,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                 chooseConcept();
                 break;
             case "getVocabulary":
-                vocabularyDManager.getOrderedConcepts(currentPlace);
+                vocabularyDManager.getOrderedConcepts(currentPlace, user);
                 break;
                 default:
                     break;
@@ -138,11 +140,11 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             newShownConcept.setError(currentError);
             Log.d("TEST", "El error es: " + newShownConcept.getError());
             evaluatedConcepts.put(index, newShownConcept);
-            vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts, currentPlace);
+            vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts, currentPlace, user);
             for (OrderedConcept o: orderedConceptList) {
                 orderedConceptHashMap.put(o.getName(), o);
             }
-            vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptHashMap, currentPlace);
+            vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptHashMap, currentPlace, user);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             //AQUI RESUMEN?
             builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")
@@ -188,8 +190,8 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         currentConcept = VocabularyDManager.conceptsCurrentPlace.get(orderedConceptList.get(FIRST_INDEX).getName());
 
         // Show concept image
-        StorageReference gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
-        Glide.with(this)
+        gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
+       Glide.with(getApplicationContext())
                 .using(new FirebaseImageLoader())
                 .load(gsReference)
                 .listener(new RequestListener<StorageReference, GlideDrawable>() {
@@ -208,8 +210,6 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                     }
                 })
                 .into(imageView);
-
-
     }
 
     private void checkAnswer() {
@@ -264,4 +264,5 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         inputNameConcept.setCursorVisible(editable);
         inputNameConcept.setFocusableInTouchMode(editable);
     }
+
 }

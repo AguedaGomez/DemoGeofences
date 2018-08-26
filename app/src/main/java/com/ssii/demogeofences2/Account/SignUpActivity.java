@@ -1,5 +1,6 @@
 package com.ssii.demogeofences2.Account;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ public class SignUpActivity extends AppCompatActivity {
     EditText email, password, age;
     Button signUpButton;
     String user_genre;
+    ProgressDialog progressDialog;
 
     FirebaseAuth auth;
     VocabularyDManager vocabularyDManager;
@@ -37,6 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void initializeComponents() {
+        progressDialog = new ProgressDialog(this);
         email = findViewById(R.id.emailText);
         password = findViewById(R.id.passwordText);
         age = findViewById(R.id.ageText);
@@ -50,7 +53,8 @@ public class SignUpActivity extends AppCompatActivity {
                     String user_password = password.getText().toString().trim();
                     String user_age = age.getText().toString().trim();
 
-
+                    progressDialog.setMessage("Realizando registro");
+                    progressDialog.show();
                     auth.createUserWithEmailAndPassword(user_email, user_password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -58,7 +62,11 @@ public class SignUpActivity extends AppCompatActivity {
                                 Toast.makeText(SignUpActivity.this, "Te has registrado con éxito", Toast.LENGTH_SHORT).show();
                                 vocabularyDManager.createUser(user_age, user_genre);
                                 initializeLogInActivity();
-                            }                        }
+                            } else {
+                                Toast.makeText(SignUpActivity.this, "No se ha podido registrar este usuario", Toast.LENGTH_SHORT).show();
+                            }
+                            progressDialog.dismiss();
+                        }
                     });
                 }
             }

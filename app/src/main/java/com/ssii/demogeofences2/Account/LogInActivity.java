@@ -26,6 +26,7 @@ public class LogInActivity extends AppCompatActivity {
     Button logIn;
     TextView signup;
 
+
     FirebaseAuth auth;
     FirebaseUser user;
 
@@ -33,6 +34,7 @@ public class LogInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+
         auth = FirebaseAuth.getInstance();
         checkUserActive();
     }
@@ -95,8 +97,8 @@ public class LogInActivity extends AppCompatActivity {
 
     private void initializeMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
-        String u_name = user.getEmail().substring(0, user.getEmail().indexOf('@'));
-        intent.putExtra("user_name", u_name);
+        intent.putExtra("user_email", user.getEmail());
+        intent.putExtra("preActivity", "LogInActivity");
         startActivity(intent);
     }
 }

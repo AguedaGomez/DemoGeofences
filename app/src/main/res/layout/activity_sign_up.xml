@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginHorizontal="16dp"
-            android:background="@drawable/blackbuttondesing"
+            android:background="@drawable/blackbuttondesign"
             android:fontFamily="@font/convergence"
             android:text="@string/register_button_text" />
     </LinearLayout>

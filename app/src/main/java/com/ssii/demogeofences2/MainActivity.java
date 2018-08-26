@@ -38,17 +38,19 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int GEOFENCE_RADIUS = 150;
-    private static final int SDK_THRESHOLD = 23;
+    static final int GEOFENCE_RADIUS = 150;
+    static final int SDK_THRESHOLD = 23;
 
-    private GeofencingClient geofencingClient;
+    GeofencingClient geofencingClient;
 
-    private FusedLocationProviderClient mFusedLocationClient;
+    FusedLocationProviderClient mFusedLocationClient;
 
-    private LocationInfo locationInfo;
-    private double currentLat, currentLong;
-    private String currentPlace = ""; //Enum?
-    private String user_name;
+    LocationInfo locationInfo;
+    double currentLat, currentLong;
+    String currentPlace = ""; //Enum?
+    String user_email;
+    String user_name;
+    String preActivity;
 
 
     TextView tv, localizationInfo;
@@ -63,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Bundle bundle = getIntent().getExtras();
-        user_name = bundle.getString("user_name");
+        getVariablesExtras();
 
         geofences = new ArrayList<>();
         localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
@@ -77,6 +78,23 @@ public class MainActivity extends AppCompatActivity {
         currentPlace = "station";
         //getCurrentPlace();
         InitButtons();
+
+    }
+
+    private void getVariablesExtras() {
+        Bundle bundle = getIntent().getExtras();
+        preActivity = bundle.getString("preActivity");
+        Log.d("TEST", "actividad anterior: " + preActivity);
+        switch (preActivity) {
+            case "LogInActivity":
+                user_email = bundle.getString("user_email");
+                user_name= user_email.substring(0, user_email.indexOf('@'));
+                break;
+            case "LearnActivity":
+                break;
+            case "EvaluationActivity":
+                break;
+        }
 
     }
 
@@ -105,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 
     @Override
@@ -137,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeEvaluationActivity() {
         Intent intent = new Intent(this, EvaluationActivity.class);
+        intent.putExtra("user", user_email);
         intent.putExtra("currentPlace", currentPlace);
         startActivity(intent);
     }
@@ -144,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeLearnActivity() {
         Intent intent = new Intent(this, LearnActivity.class);
         intent.putExtra("currentPlace", currentPlace);
+        intent.putExtra("user", user_email);
         startActivity(intent);
     }
 
@@ -179,12 +204,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-   /* @Override
+   @Override
     protected void onStart() {
         super.onStart();
         getCurrentPlace();
 
-    }*/
+    }
 
    @SuppressLint("MissingPermission")
    private  void addGeofences () {
@@ -287,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
         return geoFencePendingIntent = PendingIntent.getService(
                 this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
     }
+
 
 
 }
