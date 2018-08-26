@@ -57,7 +57,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     String appearanceTime, shownTextTime;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     String user;
-    String preActivity;
     StorageReference gsReference;
 
 
@@ -159,6 +158,11 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        initializeMainActivity();
     }
 
     private void chooseConcept() {
@@ -289,7 +293,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 break;
             case "sendTaughtConceptsInOrder":
                 if (currentItem.getItemId() == R.id.action_home)
-
                     initializeMainActivity();
                 else if (currentItem.getItemId()== R.id.action_test)
                     initializeEvaluationActivity();

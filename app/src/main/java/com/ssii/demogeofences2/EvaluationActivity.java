@@ -8,6 +8,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,6 +51,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     EditText inputNameConcept;
     TextView correctNameText, progressText;
     FloatingActionButton nextFAButton;
+    android.support.v7.widget.Toolbar toolbar;
 
     VocabularyDManager vocabularyDManager;
     String currentPlace, user;
@@ -115,6 +119,55 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
         loadProgressBar.setMax(MAX_CONCEPTS);
 
+        toolbar = findViewById(R.id.mtoolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.evaluation_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_home:
+                createAlertDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+       createAlertDialog();
+    }
+
+    private void createAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Si abandonas la evaluación perderás tu progreso. ¿Realmente quieres salir?")
+                .setCancelable(false)
+                .setNegativeButton("No",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+                            }
+                        })
+                .setPositiveButton("Sí",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                initializeMainActivity();
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override

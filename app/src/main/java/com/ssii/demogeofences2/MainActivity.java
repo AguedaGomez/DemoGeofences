@@ -81,6 +81,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateLocalizationInfo();
+        Log.d("TEST", "on resume");
+    }
+
     private void getVariablesExtras() {
         Bundle bundle = getIntent().getExtras();
         preActivity = bundle.getString("preActivity");
@@ -94,8 +101,19 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "EvaluationActivity":
                 break;
+            case "LocationActivity":
+                currentPlace = bundle.getString("currentPlace");
+                updateLocalizationInfo();
+                break;
         }
 
+    }
+
+
+
+    private void updateLocalizationInfo() {
+        localizationInfo.setText("Estás en " + currentPlace);
+        Log.d("TEST", "actualizando localización");
     }
 
     private void InitButtons() {
@@ -122,7 +140,18 @@ public class MainActivity extends AppCompatActivity {
                 initializeEvaluationActivity();
             }
         });
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initializeLocationActivity();
+            }
+        });
         getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+    }
+
+    private void initializeLocationActivity() {
+        Intent intent = new Intent(this, LocationActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -207,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
    @Override
     protected void onStart() {
         super.onStart();
-        getCurrentPlace();
+        //getCurrentPlace();
 
     }
 

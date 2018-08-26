@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context="com.ssii.demogeofences2.EvaluationActivity">
 
+    <include layout="@layout/toolbar" />
+
     <LinearLayout
         android:id="@+id/linearLayout3"
         android:layout_width="match_parent"

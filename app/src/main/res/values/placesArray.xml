@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="placesCategories">
+        <item>Casa</item>
+        <item>Parque</item>
+        <item>Universidad</item>
+        <item>Estación</item>
+        <item>Bar/Restaurante</item>
+        <item>Auditorio</item>
+        <item>Calle</item>
+        <item>Biblioteca</item>
+        <item>Hospital</item>
+        <item>Centro Comercial</item>
+    </string-array>
+</resources>
