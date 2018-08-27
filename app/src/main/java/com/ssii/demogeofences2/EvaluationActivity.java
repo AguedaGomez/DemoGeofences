@@ -53,7 +53,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     FloatingActionButton nextFAButton;
     android.support.v7.widget.Toolbar toolbar;
 
-    VocabularyDManager vocabularyDManager;
+    VocabularyDataManager vocabularyDataManager;
     String  user;
     List<OrderedConcept> orderedConceptList;
     HashMap<String, OrderedConcept> orderedConceptHashMap;
@@ -73,19 +73,15 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         index = 0;
         evaluatedConcepts = new HashMap<>();
         orderedConceptHashMap = new HashMap<>();
-        vocabularyDManager = VocabularyDManager.getInstance();
+        vocabularyDataManager = VocabularyDataManager.getInstance();
         initializeComponents();
-        Log.d("TEST", "aNTES DEL bUNDLE");
-        Bundle bundle = getIntent().getExtras();
-        user = bundle.getString("user");
-        Log.d("TEST", "dESPUÉS");
 
        // orderedConceptList = new ArrayList<>();
-        vocabularyDManager.addObserver(this);
-        Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDManager.conceptsCurrentPlace.size());
-        if (vocabularyDManager.conceptsCurrentPlace.size() <= 0)
-            vocabularyDManager.getVocabulary();
-        else vocabularyDManager.getOrderedConcepts( user);
+        vocabularyDataManager.addObserver(this);
+        Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDataManager.conceptsCurrentPlace.size());
+        if (vocabularyDataManager.conceptsCurrentPlace.size() <= 0)
+            vocabularyDataManager.getVocabulary();
+        else vocabularyDataManager.getOrderedConcepts();
     }
 
     private void initializeComponents() {
@@ -174,12 +170,12 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         switch (o.toString()) {
             case "getOrderedConcepts":
                 Log.d("TEST", "después de gtOrderedConcepts");
-                orderedConceptList = new ArrayList<>(VocabularyDManager.conceptsToEvaluate.values());
+                orderedConceptList = new ArrayList<>(VocabularyDataManager.conceptsToEvaluate.values());
                 Collections.sort(orderedConceptList);
                 chooseConcept();
                 break;
             case "getVocabulary":
-                vocabularyDManager.getOrderedConcepts(user);
+                vocabularyDataManager.getOrderedConcepts();
                 break;
                 default:
                     break;
@@ -192,11 +188,11 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             newShownConcept.setError(currentError);
             Log.d("TEST", "El error es: " + newShownConcept.getError());
             evaluatedConcepts.put(index, newShownConcept);
-            vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts,user);
+            vocabularyDataManager.sendEvaluatedConcepts(evaluatedConcepts);
             for (OrderedConcept o: orderedConceptList) {
                 orderedConceptHashMap.put(o.getName(), o);
             }
-            vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptHashMap, user);
+            vocabularyDataManager.sendTaughtConceptsInOrder(orderedConceptHashMap);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             //AQUI RESUMEN?
             builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")
@@ -226,7 +222,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     }
 
     private void initializeMainActivity() {
-        vocabularyDManager.deleteObserver(this);
+        vocabularyDataManager.deleteObserver(this);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -239,7 +235,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         enableEditText(true);
         inputNameConcept.setTextColor(Color.DKGRAY);
 
-        currentConcept = VocabularyDManager.conceptsCurrentPlace.get(orderedConceptList.get(FIRST_INDEX).getName());
+        currentConcept = VocabularyDataManager.conceptsCurrentPlace.get(orderedConceptList.get(FIRST_INDEX).getName());
 
         // Show concept image
         gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
@@ -269,7 +265,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         boolean correct = false;
         String answer = inputNameConcept.getText().toString();
         if (answer.length()==0) {
-            Toast.makeText(this, "Escribe el nombre del concepto", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Escribe el nombre del concepto", Toast.LENGTH_SHORT).show();
             return;
         }
         answer = answer.substring(0,1).toUpperCase() + answer.substring(1).toLowerCase();

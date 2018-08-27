@@ -46,7 +46,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     android.support.v7.widget.Toolbar toolbar;
     MenuItem currentItem;
 
-    VocabularyDManager vocabularyDManager;
+    VocabularyDataManager vocabularyDataManager;
     HashMap<String, Concept> concepts;
     HashMap<String, Concept> knownTaughtConcepts;
     HashMap<String, ShownConcept> taughtConcepts;
@@ -71,12 +71,10 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void loadVocabulary() {
-        Bundle bundle = getIntent().getExtras();
-        user = bundle.getString("user");
-        vocabularyDManager = VocabularyDManager.getInstance();
-        vocabularyDManager.addObserver(this);
+        vocabularyDataManager = VocabularyDataManager.getInstance();
+        vocabularyDataManager.addObserver(this);
         Log.d("TEST", "DESPUÉS DE AÑADIR OBSERVADORES");
-        vocabularyDManager.getOrderedConcepts(user);
+        vocabularyDataManager.getOrderedConcepts();
 
     }
 
@@ -202,15 +200,15 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
-        vocabularyDManager.sendTaughtConceptsInOrder(orderedConcepts, user);
+        vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
     }
 
     private void saveTaughtConcepts() {
-        vocabularyDManager.sendTaughtConcepts(taughtConcepts, user);
+        vocabularyDataManager.sendTaughtConcepts(taughtConcepts);
     }
 
     private void initializeMainActivity() {
-        vocabularyDManager.deleteObserver(this);
+        vocabularyDataManager.deleteObserver(this);
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("preActivity", "LearnActivity");
@@ -219,7 +217,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void initializeEvaluationActivity() {
-        vocabularyDManager.deleteObserver(this);
+        vocabularyDataManager.deleteObserver(this);
         Intent intent = new Intent(this, EvaluationActivity.class);
         intent.putExtra("user", user);
 
@@ -274,16 +272,16 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     public void update(Observable observable, Object o) {
         switch (o.toString()) {
             case "getVocabulary":
-                concepts = VocabularyDManager.conceptsCurrentPlace;
+                concepts = VocabularyDataManager.conceptsCurrentPlace;
                 conceptsKeys = new HashSet<>(concepts.keySet());
                 conceptsKeys.removeAll(knownTaughtConcepts.keySet());
                 chooseConcept();
                 Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
                 break;
             case "getOrderedConcepts":
-                orderedConcepts = VocabularyDManager.conceptsToEvaluate;
+                orderedConcepts = VocabularyDataManager.conceptsToEvaluate;
                 //Log.d("TEST", "ORDERED CONCEPTS TIENE: " + orderedConcepts.size());
-                vocabularyDManager.getVocabulary();
+                vocabularyDataManager.getVocabulary();
                 break;
             case "sendTaughtConcepts":
                 saveConceptsInOrder();

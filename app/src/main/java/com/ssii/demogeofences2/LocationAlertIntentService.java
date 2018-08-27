@@ -3,10 +3,7 @@ package com.ssii.demogeofences2;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.Nullable;
@@ -37,7 +34,7 @@ public class LocationAlertIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent){
-
+        locationInfo = new LocationInfo();
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         Log.d("TEST", "onHandleIntent");
         if (geofencingEvent.hasError()) {
@@ -60,6 +57,8 @@ public class LocationAlertIntentService extends IntentService {
 
             notifyLocationAlert(transitionType, transitionDetails);
 
+            VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(transitionDetails);
+            Log.d("TEST", "después de saltar la geofence currenplace es: " + VocabularyDataManager.currentPlace);
            // locationInfo.currentPlace = transitionDetails;
 
 
@@ -167,7 +166,8 @@ public class LocationAlertIntentService extends IntentService {
                 .setSmallIcon(R.drawable.marker)
                 .build();
 
-        startForeground(0, notification );*/
+        startForeground(0, notification );
+        --------------------------
      Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MainActivity.class);
@@ -179,11 +179,8 @@ public class LocationAlertIntentService extends IntentService {
 
         // Define the notification settings.
         builder.setSmallIcon(R.drawable.marker)
-                // In a real app, you may want to use a library like Volley
-                // to decode the Bitmap.
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.mipmap.ic_launcher))
-                .setLights(0xff00ff00, 300, 100)
                 .setContentTitle(locationDetails)
                 .setContentText(locTransitionType)
                 .setContentIntent(notificationPendingIntent);
@@ -196,6 +193,19 @@ public class LocationAlertIntentService extends IntentService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Issue the notification
-        mNotificationManager.notify(0, builder.build());
+        mNotificationManager.notify(0, builder.build());*/
+     NotificationCompat.Builder mBuider;
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        int icon = R.drawable.marker;
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.putExtra("preActivity", "alert");
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        mBuider = new NotificationCompat.Builder(getApplicationContext())
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(icon)
+                .setContentTitle("Vocabulario disponible")
+                .setContentText(locationDetails)
+                .setAutoCancel(true);
+        notificationManager.notify(1, mBuider.build());
     }
 }

@@ -28,7 +28,7 @@ public class LocationActivity extends AppCompatActivity {
         placesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                VocabularyDManager.currentPlace = locationInfo.translatePlace2English(adapterView.getItemAtPosition(i).toString());
+                VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(adapterView.getItemAtPosition(i).toString());
                 initializeMainActivity();
             }
         });

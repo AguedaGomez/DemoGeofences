@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.ssii.demogeofences2.MainActivity;
 import com.ssii.demogeofences2.R;
+import com.ssii.demogeofences2.VocabularyDataManager;
 
 public class LogInActivity extends AppCompatActivity {
 
@@ -97,8 +98,9 @@ public class LogInActivity extends AppCompatActivity {
 
     private void initializeMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("user_email", user.getEmail());
-        intent.putExtra("preActivity", "LogInActivity");
+        VocabularyDataManager.user_email = user.getEmail();
+       // intent.putExtra("user_email", user.getEmail());
+       // intent.putExtra("preActivity", "LogInActivity");
         startActivity(intent);
     }
 }

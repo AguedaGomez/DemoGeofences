@@ -32,13 +32,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.ssii.demogeofences2.Account.LogInActivity;
+import com.ssii.demogeofences2.Objects.Place;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    static final int GEOFENCE_RADIUS = 150;
+    static final int GEOFENCE_RADIUS = 100;
     static final int SDK_THRESHOLD = 23;
 
     GeofencingClient geofencingClient;
@@ -64,18 +65,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("TEST", "on create");
+        VocabularyDataManager.currentPlace = "street";
+        //getVariablesExtras();
 
-        VocabularyDManager.currentPlace = "street";
-        getVariablesExtras();
 
-        geofences = new ArrayList<>();
         localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
+        geofences = new ArrayList<>();
 
         locationInfo = new LocationInfo();
         geofencingClient = new GeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        getCurrentPlace();
         InitButtons();
+        addGeofences();
 
     }
 
@@ -93,18 +95,18 @@ public class MainActivity extends AppCompatActivity {
         if (preActivity == "LogInActivity") {
             user_email = bundle.getString("user_email");
             user_name= user_email.substring(0, user_email.indexOf('@'));
+            user_name = user_name.substring(0,1).toUpperCase() + user_name.substring(1);
+            getCurrentPlace();
         }
     }
 
 
     private void updateLocalizationInfo() {
-        localizationInfo.setText("Tu ubicación actual: " +  locationInfo.translatePlace2Spanish(VocabularyDManager.currentPlace));
+        localizationInfo.setText("Tu ubicación actual: " +  locationInfo.translatePlace2Spanish(VocabularyDataManager.currentPlace));
     }
 
     private void InitButtons() {
         Log.d("TEST", "en initbuttons");
-        toolbar = findViewById(R.id.mtoolbar);
-        setSupportActionBar(toolbar);
         locationButton = (ImageButton)findViewById(R.id.locationButton);
         learnButton = (Button)findViewById(R.id.learnButton);
         testButton = (Button)findViewById(R.id.testButton);
@@ -134,7 +136,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.d("TEST", "antes de la toolbar");
-       // getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+      //getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+        toolbar = findViewById(R.id.mtoolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(VocabularyDataManager.user_email);
         Log.d("TEST", "después de la toolbar");
     }
 
@@ -201,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("TEST", location.getLatitude() + "," + location.getLongitude());
                                 currentLat = location.getLatitude();
                                 currentLong = location.getLongitude();
-                                VocabularyDManager.currentPlace = locationInfo.translatePlace2English(locationInfo.nearestPlace2Me(currentLat, currentLong));
+                                VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(locationInfo.nearestPlace2Me(currentLat, currentLong));
                                 updateLocalizationInfo();
 
                             } else {
@@ -232,25 +237,9 @@ public class MainActivity extends AppCompatActivity {
    private  void addGeofences () {
        geofencingClient.removeGeofences(getGeofencePendingIntent());
 
-       geofences.add(getGeofence(40.0665974, -2.142336, "Plaza de toros"));
-       geofences.add(getGeofence(40.0703178, -2.1398082, "Cuatro caminos"));
-       geofences.add(getGeofence(40.0700921, -2.1383116, "Mango, Calle Cervantes"));
-       geofences.add(getGeofence(40.0616557, -2.1386667, "Quinientas-Reyes Catolicos"));
-       geofences.add(getGeofence(40.0732046, -2.1389133, "Carreteria"));
-       geofences.add(getGeofence(40.0675682, -2.1398859, "Casa"));
-       geofences.add(getGeofence(40.0612614, -2.1432617, "Guardia Civil"));
-       geofences.add(getGeofence(40.0537183, -2.1245353, "El Mirador"));
-       geofences.add(getGeofence(40.0537183, -2.1245353, "Hospital"));
-       geofences.add(getGeofence(40.0759322, -2.1465609, "Facultad ciencias sociales"));
-       geofences.add(getGeofence(40.074022, -2.1429329, "Carrero"));
-       geofences.add(getGeofence(37.9117953, -4.7918234, "Casa Nacho"));
-       geofences.add(getGeofence(40.067376, -2.1371418, "Estación"));
-       geofences.add(getGeofence(39.7274187, -1.9011215, "Almodóvar Casa"));
-       geofences.add(getGeofence(39.7256353, -1.9015827, "Almodóvar Plaza"));
-       geofences.add(getGeofence(39.72846, -1.9003411, "Almodóvar Coche"));
-       geofences.add(getGeofence(39.7246181, -1.9011311, "Almodóvar Colegio"));
-       geofences.add(getGeofence(39.7249874, -1.9005061, "Almodóvar Justino"));
-       geofences.add(getGeofence(39.7262083, -1.8995498, "Almodóvar Boni"));
+       for (Place place: locationInfo.cuencaPlaces) {
+           geofences.add(getGeofence(place.getLat(), place.getLng(), place.getName()));
+       }
        for (Geofence g: geofences) {
            geofencingClient.addGeofences(getGeofencingRequest(g), getGeofencePendingIntent())
                    .addOnCompleteListener(new OnCompleteListener<Void>() {

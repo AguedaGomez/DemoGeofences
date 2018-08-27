@@ -16,7 +16,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.ssii.demogeofences2.R;
-import com.ssii.demogeofences2.VocabularyDManager;
+import com.ssii.demogeofences2.VocabularyDataManager;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -26,7 +26,7 @@ public class SignUpActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
 
     FirebaseAuth auth;
-    VocabularyDManager vocabularyDManager;
+    VocabularyDataManager vocabularyDataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         auth = FirebaseAuth.getInstance();
-        vocabularyDManager = VocabularyDManager.getInstance();
+        vocabularyDataManager = VocabularyDataManager.getInstance();
         initializeComponents();
     }
 
@@ -60,7 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
                                 Toast.makeText(SignUpActivity.this, "Te has registrado con éxito", Toast.LENGTH_SHORT).show();
-                                vocabularyDManager.createUser(user_age, user_genre);
+                                vocabularyDataManager.createUser(user_age, user_genre);
                                 initializeLogInActivity();
                             } else {
                                 Toast.makeText(SignUpActivity.this, "No se ha podido registrar este usuario", Toast.LENGTH_SHORT).show();

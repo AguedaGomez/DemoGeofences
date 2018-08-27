@@ -15,7 +15,7 @@ public class LocationInfo {
 
     private final int MIN_METRES = 100;
 
-    private List<Place> cuencaPlaces;
+    public List<Place> cuencaPlaces;
 
     public LocationInfo () {
         cuencaPlaces = new ArrayList<>();
@@ -59,7 +59,7 @@ public class LocationInfo {
                 nearestPlace = p.getName();
             }
         }
-        if (minDistance < MIN_METRES) {
+        if (minDistance > MIN_METRES) {
             nearestPlace = "Calle";
         }
         Log.d("TEST", nearestPlace);
