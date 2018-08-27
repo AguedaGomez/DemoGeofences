@@ -19,4 +19,6 @@
     <string name="evaluation_button">Evaluar</string>
     <string name="learn_button">Aprender</string>
 
+    <string name="ubicationTextInfo">Elige tu ubicación</string>
+
 </resources>

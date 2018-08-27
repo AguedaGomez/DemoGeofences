@@ -34,6 +34,8 @@ public class VocabularyDManager extends Observable{
     public static HashMap<String, Concept> conceptsCurrentPlace; // All concepts of current place
     public static HashMap<String, OrderedConcept> conceptsToEvaluate;
 
+    public static String currentPlace;
+
     private VocabularyDManager() {
         conceptsCurrentPlace = new HashMap<>();
         conceptsToEvaluate = new HashMap<>();
@@ -41,10 +43,10 @@ public class VocabularyDManager extends Observable{
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void getVocabulary(String currentCategory) {
+    public void getVocabulary() {
 
         db.collection("concepts")
-                .whereEqualTo("category", currentCategory)
+                .whereEqualTo("category", currentPlace)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -67,9 +69,9 @@ public class VocabularyDManager extends Observable{
                 });
     }
 
-    public void getOrderedConcepts(String currentCategory, String user) { // Tiene que ser los conceptos con el orden y la fuerza
+    public void getOrderedConcepts( String user) { // Tiene que ser los conceptos con el orden y la fuerza
         Log.d("TEST", "en getOrderedConcepts");
-        db.collection("users/" + user + "/actions/taughtConceptsInOrder/" + currentCategory)
+        db.collection("users/" + user + "/actions/taughtConceptsInOrder/" + currentPlace)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -96,7 +98,7 @@ public class VocabularyDManager extends Observable{
                 });
     }
 
-    public void sendTaughtConcepts(HashMap<String, ShownConcept> concepts, String currentPlace, String user) {
+    public void sendTaughtConcepts(HashMap<String, ShownConcept> concepts, String user) {
         CollectionReference users = db.collection("users").document(user).collection("actions").document("taughtConcepts").collection(currentPlace);
         for (ShownConcept sc: concepts.values()) {
             users
@@ -113,7 +115,7 @@ public class VocabularyDManager extends Observable{
 
     }
 
-    public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts, String currentPlace, String user) {
+    public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts, String user) {
 
         for (OrderedConcept oc: concepts.values()) {
             DocumentReference usersPlace = db.collection("users").document(user).collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName());
@@ -130,7 +132,7 @@ public class VocabularyDManager extends Observable{
 
     }
 
-    public void sendEvaluatedConcepts(HashMap<Integer, ShownConcept> concepts, String currentPlace, String user) {
+    public void sendEvaluatedConcepts(HashMap<Integer, ShownConcept> concepts, String user) {
         CollectionReference users = db.collection("users").document(user).collection("actions").document("evaluatedConcepts").collection(currentPlace);
         for (ShownConcept sc: concepts.values()) {
             users

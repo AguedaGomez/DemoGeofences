@@ -60,7 +60,7 @@ public class LocationAlertIntentService extends IntentService {
 
             notifyLocationAlert(transitionType, transitionDetails);
 
-            locationInfo.currentPlace = transitionDetails;
+           // locationInfo.currentPlace = transitionDetails;
 
 
         }

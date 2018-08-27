@@ -47,7 +47,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     MenuItem currentItem;
 
     VocabularyDManager vocabularyDManager;
-    String currentPlace;
     HashMap<String, Concept> concepts;
     HashMap<String, Concept> knownTaughtConcepts;
     HashMap<String, ShownConcept> taughtConcepts;
@@ -73,12 +72,11 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     private void loadVocabulary() {
         Bundle bundle = getIntent().getExtras();
-        currentPlace = bundle.getString("currentPlace");
         user = bundle.getString("user");
         vocabularyDManager = VocabularyDManager.getInstance();
         vocabularyDManager.addObserver(this);
         Log.d("TEST", "DESPUÉS DE AÑADIR OBSERVADORES");
-        vocabularyDManager.getOrderedConcepts(currentPlace, user);
+        vocabularyDManager.getOrderedConcepts(user);
 
     }
 
@@ -204,11 +202,11 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
-        vocabularyDManager.sendTaughtConceptsInOrder(orderedConcepts, currentPlace, user);
+        vocabularyDManager.sendTaughtConceptsInOrder(orderedConcepts, user);
     }
 
     private void saveTaughtConcepts() {
-        vocabularyDManager.sendTaughtConcepts(taughtConcepts, currentPlace, user);
+        vocabularyDManager.sendTaughtConcepts(taughtConcepts, user);
     }
 
     private void initializeMainActivity() {
@@ -223,7 +221,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     private void initializeEvaluationActivity() {
         vocabularyDManager.deleteObserver(this);
         Intent intent = new Intent(this, EvaluationActivity.class);
-        intent.putExtra("currentPlace", currentPlace);
         intent.putExtra("user", user);
 
         startActivity(intent);
@@ -286,7 +283,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             case "getOrderedConcepts":
                 orderedConcepts = VocabularyDManager.conceptsToEvaluate;
                 //Log.d("TEST", "ORDERED CONCEPTS TIENE: " + orderedConcepts.size());
-                vocabularyDManager.getVocabulary(currentPlace);
+                vocabularyDManager.getVocabulary();
                 break;
             case "sendTaughtConcepts":
                 saveConceptsInOrder();

@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
     LocationInfo locationInfo;
     double currentLat, currentLong;
-    String currentPlace = ""; //Enum?
     String user_email;
     String user_name;
     String preActivity;
@@ -65,17 +64,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        VocabularyDManager.currentPlace = "street";
         getVariablesExtras();
 
         geofences = new ArrayList<>();
         localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
 
         locationInfo = new LocationInfo();
-        localizationInfo.setText(localizationInfo.getText() + "\n" + locationInfo.currentPlace);
+        updateLocalizationInfo();
 
         geofencingClient = new GeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        currentPlace = "station";
         //getCurrentPlace();
         InitButtons();
 
@@ -97,37 +97,24 @@ public class MainActivity extends AppCompatActivity {
                 user_email = bundle.getString("user_email");
                 user_name= user_email.substring(0, user_email.indexOf('@'));
                 break;
-            case "LearnActivity":
-                break;
-            case "EvaluationActivity":
-                break;
-            case "LocationActivity":
-                currentPlace = bundle.getString("currentPlace");
-                updateLocalizationInfo();
-                break;
         }
 
     }
 
 
-
     private void updateLocalizationInfo() {
-        localizationInfo.setText("Estás en " + currentPlace);
+        localizationInfo.setText("Tu ubicación actual: " +  locationInfo.translatePlace2Spanish(VocabularyDManager.currentPlace));
         Log.d("TEST", "actualizando localización");
     }
 
     private void InitButtons() {
+        Log.d("TEST", "initbuttons");
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
         locationButton = (ImageButton)findViewById(R.id.locationButton);
         learnButton = (Button)findViewById(R.id.learnButton);
         testButton = (Button)findViewById(R.id.testButton);
-
-        locationButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                getCurrentPlace();
-            }
-        });
+        Log.d("TEST", "despues de los botones");
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
                 initializeLocationActivity();
             }
         });
+        Log.d("TEST", "antes de poner el nombre en la toobar " + user_name);
         getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+        Log.d("TEST", "después de initbuttons");
     }
 
     private void initializeLocationActivity() {
@@ -190,13 +179,11 @@ public class MainActivity extends AppCompatActivity {
     private void initializeEvaluationActivity() {
         Intent intent = new Intent(this, EvaluationActivity.class);
         intent.putExtra("user", user_email);
-        intent.putExtra("currentPlace", currentPlace);
         startActivity(intent);
     }
 
     private void initializeLearnActivity() {
         Intent intent = new Intent(this, LearnActivity.class);
-        intent.putExtra("currentPlace", currentPlace);
         intent.putExtra("user", user_email);
         startActivity(intent);
     }
@@ -216,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                                 currentLong = location.getLongitude();
                                 String nearestPlace = locationInfo.nearestPlace2Me(currentLat, currentLong);
                                 localizationInfo.setText("Estás en " + nearestPlace);
-                                currentPlace = nearestPlace;
+                                VocabularyDManager.currentPlace = nearestPlace;
                                 Log.d("TEST", nearestPlace);
                             }
                         }

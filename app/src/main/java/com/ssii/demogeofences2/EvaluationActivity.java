@@ -54,7 +54,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     android.support.v7.widget.Toolbar toolbar;
 
     VocabularyDManager vocabularyDManager;
-    String currentPlace, user;
+    String  user;
     List<OrderedConcept> orderedConceptList;
     HashMap<String, OrderedConcept> orderedConceptHashMap;
     HashMap<Integer, ShownConcept> evaluatedConcepts;
@@ -77,7 +77,6 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         initializeComponents();
         Log.d("TEST", "aNTES DEL bUNDLE");
         Bundle bundle = getIntent().getExtras();
-        currentPlace = bundle.getString("currentPlace");
         user = bundle.getString("user");
         Log.d("TEST", "dESPUÉS");
 
@@ -85,8 +84,8 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         vocabularyDManager.addObserver(this);
         Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDManager.conceptsCurrentPlace.size());
         if (vocabularyDManager.conceptsCurrentPlace.size() <= 0)
-            vocabularyDManager.getVocabulary(currentPlace);
-        else vocabularyDManager.getOrderedConcepts(currentPlace, user);
+            vocabularyDManager.getVocabulary();
+        else vocabularyDManager.getOrderedConcepts( user);
     }
 
     private void initializeComponents() {
@@ -180,7 +179,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                 chooseConcept();
                 break;
             case "getVocabulary":
-                vocabularyDManager.getOrderedConcepts(currentPlace, user);
+                vocabularyDManager.getOrderedConcepts(user);
                 break;
                 default:
                     break;
@@ -193,11 +192,11 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             newShownConcept.setError(currentError);
             Log.d("TEST", "El error es: " + newShownConcept.getError());
             evaluatedConcepts.put(index, newShownConcept);
-            vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts, currentPlace, user);
+            vocabularyDManager.sendEvaluatedConcepts(evaluatedConcepts,user);
             for (OrderedConcept o: orderedConceptList) {
                 orderedConceptHashMap.put(o.getName(), o);
             }
-            vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptHashMap, currentPlace, user);
+            vocabularyDManager.sendTaughtConceptsInOrder(orderedConceptHashMap, user);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             //AQUI RESUMEN?
             builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")

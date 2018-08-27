@@ -11,13 +11,13 @@ import android.widget.ListView;
 public class LocationActivity extends AppCompatActivity {
 
     ListView placesListView;
-    String currentPlace;
+    LocationInfo locationInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
-
+        locationInfo = new LocationInfo();
         placesListView = findViewById(R.id.placesList);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.placesCategories,
@@ -28,16 +28,15 @@ public class LocationActivity extends AppCompatActivity {
         placesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                currentPlace = adapterView.getItemAtPosition(i).toString();
+                VocabularyDManager.currentPlace = locationInfo.translatePlace2English(adapterView.getItemAtPosition(i).toString());
                 initializeMainActivity();
             }
         });
     }
 
+
     private void initializeMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("currentPlace", currentPlace);
-        intent.putExtra("preActivity", "LocationActivity");
         startActivity(intent);
     }
 }

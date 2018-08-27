@@ -13,15 +13,17 @@ import java.util.List;
 
 public class LocationInfo {
 
-    public static String currentPlace = "ningún sitio";
 
-    private List<Place> places;
+    private List<Place> cuencaPlaces;
 
     public LocationInfo () {
-        places = new ArrayList<>();
-        places.add(new Place("Plaza de toros",40.0665974 ,-2.142336));
-        places.add(new Place("Hospital Virgen de la luz", 40.0537183, -2.1245353));
-        places.add(new Place("Estación de tren", 40.067376, -2.1371418));
+        cuencaPlaces = new ArrayList<>();
+        cuencaPlaces.add(new Place("Bar/Restaurante",40.0665974 ,-2.142336));
+        cuencaPlaces.add(new Place("Hospital", 40.0537183, -2.1245353));
+        cuencaPlaces.add(new Place("Estación", 40.067376, -2.1371418));
+        cuencaPlaces.add(new Place("Universidad", 40.067376, -2.1371418));
+        cuencaPlaces.add(new Place("Biblioteca", 40.067376, -2.1371418));
+        cuencaPlaces.add(new Place("Estación", 40.067376, -2.1371418));
 
 
         Log.d("TEST", "Añadidos places");
@@ -45,8 +47,8 @@ public class LocationInfo {
         Log.d("TEST", "NearestPlace2Me");
         double minDistance = Double.MAX_VALUE;
         String nearestPlace = "";
-        Log.d("TEST", places.size() + "");
-        for (Place p: places) {
+        Log.d("TEST", cuencaPlaces.size() + "");
+        for (Place p: cuencaPlaces) {
             double d = calculateDistance(mlat, mlong, p.getLat(), p.getLng());
             if (d < minDistance) {
                 minDistance = d;
@@ -55,6 +57,81 @@ public class LocationInfo {
         }
 
         return nearestPlace;
+
+    }
+
+    public String translatePlace2English(String s) {
+        String place = "";
+        switch (s) {
+            case "Casa":
+                place = "home";
+                break;
+            case "Parque":
+                place = "park";
+                break;
+            case "Universidad":
+                place = "university";
+                break;
+            case "Estación":
+                place = "station";
+                break;
+            case "Bar/Restaurante":
+                place = "restaurant";
+                break;
+            case "Auditorio":
+                place = "audience";
+                break;
+            case "Calle":
+                place = "street";
+                break;
+            case "Biblioteca":
+                place = "library";
+                break;
+            case "Hospital":
+                place = "hospital";
+                break;
+            case "Centro comercial":
+                place = "mall";
+                break;
+        }
+        return place;
+    }
+
+    public String translatePlace2Spanish(String s) {
+        String place = "";
+        switch (s) {
+            case "home":
+                place = "Casa";
+                break;
+            case "park":
+                place = "Parque";
+                break;
+            case "university":
+                place = "Universidad";
+                break;
+            case "station":
+                place = "Estación";
+                break;
+            case "restaurant":
+                place = "Restaurante";
+                break;
+            case "audience":
+                place = "Auditorio";
+                break;
+            case "street":
+                place = "Calle";
+                break;
+            case "library":
+                place = "Biblioteca";
+                break;
+            case "hospital":
+                place = "Hospital";
+                break;
+            case "mall":
+                place = "Centro Comercial";
+                break;
+        }
+        return place;
 
     }
 }
