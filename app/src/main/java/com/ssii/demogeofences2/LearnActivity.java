@@ -145,11 +145,11 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         switch(item.getItemId()) {
             case R.id.action_home:
                 currentItem = item;
-                saveTaughtConcepts();
+                saveConceptsInOrder();
                 return true;
             case R.id.action_test:
                 currentItem = item;
-                saveTaughtConcepts();
+                saveConceptsInOrder();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -200,7 +200,10 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
-        vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
+        if (!orderedConcepts.equals(VocabularyDataManager.conceptsToEvaluate))
+            vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
+        else
+            saveTaughtConcepts();
     }
 
     private void saveTaughtConcepts() {
@@ -211,7 +214,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         vocabularyDataManager.deleteObserver(this);
 
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("preActivity", "LearnActivity");
+        finish();
 
         startActivity(intent);
     }
@@ -219,7 +222,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     private void initializeEvaluationActivity() {
         vocabularyDataManager.deleteObserver(this);
         Intent intent = new Intent(this, EvaluationActivity.class);
-        intent.putExtra("user", user);
+        finish();
 
         startActivity(intent);
     }
@@ -284,14 +287,14 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 vocabularyDataManager.getVocabulary();
                 break;
             case "sendTaughtConcepts":
-                saveConceptsInOrder();
-                break;
-            case "sendTaughtConceptsInOrder":
                 if (currentItem.getItemId() == R.id.action_home)
                     initializeMainActivity();
                 else if (currentItem.getItemId()== R.id.action_test)
                     initializeEvaluationActivity();
                 break;
+            case "sendTaughtConceptsInOrder":
+                saveTaughtConcepts();
+
         }
 
     }

@@ -41,9 +41,9 @@ import java.util.Observer;
 
 public class EvaluationActivity extends AppCompatActivity implements Observer {
 
-    final int MAX_CONCEPTS = 7;
+    final int CONCEPTS_CUANTITY = 7;
     final int FIRST_INDEX = 0;
-    final String PROGRESS = "/" + MAX_CONCEPTS;
+    final String PROGRESS = "/" + CONCEPTS_CUANTITY;
 
     Button checkButton;
     ProgressBar progressBar, loadProgressBar;
@@ -119,7 +119,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             }
         });
 
-        loadProgressBar.setMax(MAX_CONCEPTS);
+        loadProgressBar.setMax(CONCEPTS_CUANTITY);
 
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
@@ -177,9 +177,14 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         switch (o.toString()) {
             case "getOrderedConcepts":
                 Log.d("TEST", "después de gtOrderedConcepts");
-                orderedConceptList = new ArrayList<>(VocabularyDataManager.conceptsToEvaluate.values());
-                Collections.sort(orderedConceptList);
-                chooseConcept();
+                if (VocabularyDataManager.conceptsToEvaluate.size() < CONCEPTS_CUANTITY)
+                    createExitDialog();
+                else {
+                    orderedConceptList = new ArrayList<>(VocabularyDataManager.conceptsToEvaluate.values());
+                    Collections.sort(orderedConceptList);
+                    chooseConcept();
+                }
+
                 break;
             case "getVocabulary":
                 vocabularyDataManager.getOrderedConcepts();
@@ -187,6 +192,21 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                 default:
                     break;
         }
+    }
+
+    private void createExitDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Para poder evaluarte necesitas aprender al menos 7 conceptos")
+                .setCancelable(false)
+                .setPositiveButton("Entendido",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                initializeMainActivity();
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private void nextClick() {
@@ -231,6 +251,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     private void initializeMainActivity() {
         vocabularyDataManager.deleteObserver(this);
         Intent intent = new Intent(this, MainActivity.class);
+        finish();
         startActivity(intent);
     }
 
