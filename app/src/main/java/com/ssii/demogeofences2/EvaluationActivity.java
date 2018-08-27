@@ -112,6 +112,13 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             }
         });
 
+        inputNameConcept.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                return true;
+            }
+        });
+
         loadProgressBar.setMax(MAX_CONCEPTS);
 
         toolbar = findViewById(R.id.mtoolbar);
