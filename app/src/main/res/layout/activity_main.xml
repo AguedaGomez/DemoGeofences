@@ -28,6 +28,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.75">
 
+
+
         <ImageButton
             android:id="@+id/locationButton"
             android:layout_width="64dp"
@@ -35,7 +37,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="2dp"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="8dp"
             android:background="@android:color/transparent"
             android:scaleType="fitCenter"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -72,7 +74,6 @@
             android:fontFamily="@font/convergence"
             android:text="@string/learn_button"
             android:textAlignment="center"
-            android:textColor="@color/common_google_signin_btn_text_light_focused"
             android:textSize="24sp" />
 
         <Button
@@ -84,7 +85,20 @@
             android:background="@drawable/blackbuttondesign"
             android:fontFamily="@font/convergence"
             android:text="@string/evaluation_button"
-            android:textColor="@color/common_google_signin_btn_text_light_focused"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/localizeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/blackbuttondesign"
+            android:drawableStart="@drawable/ic_gps_fixed_black_24dp"
+            android:fontFamily="@font/convergence"
+            android:gravity="center"
+            android:paddingLeft="32dp"
+            android:text="@string/localize_button"
             android:textSize="24sp" />
 
     </LinearLayout>

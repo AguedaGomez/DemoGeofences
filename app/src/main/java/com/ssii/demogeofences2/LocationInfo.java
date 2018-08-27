@@ -13,17 +13,21 @@ import java.util.List;
 
 public class LocationInfo {
 
+    private final int MIN_METRES = 100;
 
     private List<Place> cuencaPlaces;
 
     public LocationInfo () {
         cuencaPlaces = new ArrayList<>();
-        cuencaPlaces.add(new Place("Bar/Restaurante",40.0665974 ,-2.142336));
+        cuencaPlaces.add(new Place("Bar/Restaurante",40.0713042 ,-2.1374043));
         cuencaPlaces.add(new Place("Hospital", 40.0537183, -2.1245353));
         cuencaPlaces.add(new Place("Estación", 40.067376, -2.1371418));
-        cuencaPlaces.add(new Place("Universidad", 40.067376, -2.1371418));
-        cuencaPlaces.add(new Place("Biblioteca", 40.067376, -2.1371418));
-        cuencaPlaces.add(new Place("Estación", 40.067376, -2.1371418));
+        cuencaPlaces.add(new Place("Universidad", 40.0713038, -2.1439972));
+        cuencaPlaces.add(new Place("Biblioteca", 40.0713031, -2.1440401));
+        cuencaPlaces.add(new Place("Biblioteca", 40.0715659, -2.1441689));
+        cuencaPlaces.add(new Place("Centro Comercial", 40.0537142, -2.1245406));
+        cuencaPlaces.add(new Place("Parque", 40.0740179, -2.1429382));
+        cuencaPlaces.add(new Place("Parque", 40.0737158, -2.1370342));
 
 
         Log.d("TEST", "Añadidos places");
@@ -55,6 +59,10 @@ public class LocationInfo {
                 nearestPlace = p.getName();
             }
         }
+        if (minDistance < MIN_METRES) {
+            nearestPlace = "Calle";
+        }
+        Log.d("TEST", nearestPlace);
 
         return nearestPlace;
 

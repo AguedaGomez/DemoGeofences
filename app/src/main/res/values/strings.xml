@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LocabulApp</string>
+    <string name="app_name">Localingua</string>
 
     <string name="hint_name">Nombre</string>
     <string name="hint_email">Email</string>
@@ -18,6 +18,7 @@
 
     <string name="evaluation_button">Evaluar</string>
     <string name="learn_button">Aprender</string>
+    <string name="localize_button">Localízame</string>
 
     <string name="ubicationTextInfo">Elige tu ubicación</string>
 

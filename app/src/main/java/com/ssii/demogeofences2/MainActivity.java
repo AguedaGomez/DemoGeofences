@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     TextView tv, localizationInfo;
-    Button testButton, learnButton;
+    Button testButton, learnButton, localizeButton;
     ImageButton locationButton;
     android.support.v7.widget.Toolbar toolbar;
     List<Geofence> geofences;
@@ -72,11 +72,9 @@ public class MainActivity extends AppCompatActivity {
         localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
 
         locationInfo = new LocationInfo();
-        updateLocalizationInfo();
-
         geofencingClient = new GeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        //getCurrentPlace();
+        getCurrentPlace();
         InitButtons();
 
     }
@@ -92,29 +90,25 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         preActivity = bundle.getString("preActivity");
         Log.d("TEST", "actividad anterior: " + preActivity);
-        switch (preActivity) {
-            case "LogInActivity":
-                user_email = bundle.getString("user_email");
-                user_name= user_email.substring(0, user_email.indexOf('@'));
-                break;
+        if (preActivity == "LogInActivity") {
+            user_email = bundle.getString("user_email");
+            user_name= user_email.substring(0, user_email.indexOf('@'));
         }
-
     }
 
 
     private void updateLocalizationInfo() {
         localizationInfo.setText("Tu ubicación actual: " +  locationInfo.translatePlace2Spanish(VocabularyDManager.currentPlace));
-        Log.d("TEST", "actualizando localización");
     }
 
     private void InitButtons() {
-        Log.d("TEST", "initbuttons");
+        Log.d("TEST", "en initbuttons");
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
         locationButton = (ImageButton)findViewById(R.id.locationButton);
         learnButton = (Button)findViewById(R.id.learnButton);
         testButton = (Button)findViewById(R.id.testButton);
-        Log.d("TEST", "despues de los botones");
+        localizeButton = findViewById(R.id.localizeButton);
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,9 +127,15 @@ public class MainActivity extends AppCompatActivity {
                 initializeLocationActivity();
             }
         });
-        Log.d("TEST", "antes de poner el nombre en la toobar " + user_name);
-        getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
-        Log.d("TEST", "después de initbuttons");
+        localizeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getCurrentPlace();
+            }
+        });
+        Log.d("TEST", "antes de la toolbar");
+       // getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+        Log.d("TEST", "después de la toolbar");
     }
 
     private void initializeLocationActivity() {
@@ -201,10 +201,11 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("TEST", location.getLatitude() + "," + location.getLongitude());
                                 currentLat = location.getLatitude();
                                 currentLong = location.getLongitude();
-                                String nearestPlace = locationInfo.nearestPlace2Me(currentLat, currentLong);
-                                localizationInfo.setText("Estás en " + nearestPlace);
-                                VocabularyDManager.currentPlace = nearestPlace;
-                                Log.d("TEST", nearestPlace);
+                                VocabularyDManager.currentPlace = locationInfo.translatePlace2English(locationInfo.nearestPlace2Me(currentLat, currentLong));
+                                updateLocalizationInfo();
+
+                            } else {
+                                Log.d("TEST", "La localización es nula");
                             }
                         }
                     });
