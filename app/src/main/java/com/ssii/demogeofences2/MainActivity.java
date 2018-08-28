@@ -2,10 +2,11 @@ package com.ssii.demogeofences2;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,9 +17,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -28,7 +29,6 @@ import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.ssii.demogeofences2.Account.LogInActivity;
@@ -48,12 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     LocationInfo locationInfo;
     double currentLat, currentLong;
-    String user_email;
-    String user_name;
-    String preActivity;
 
-
-    TextView tv, localizationInfo;
+    TextView localizationInfo;
     Button testButton, learnButton, localizeButton;
     ImageButton locationButton;
     android.support.v7.widget.Toolbar toolbar;
@@ -67,10 +63,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d("TEST", "on create");
         VocabularyDataManager.currentPlace = "street";
-        //getVariablesExtras();
 
-
-        localizationInfo = (TextView)findViewById(R.id.localizationTextInfo);
+        localizationInfo = findViewById(R.id.localizationTextInfo);
         geofences = new ArrayList<>();
 
         locationInfo = new LocationInfo();
@@ -88,64 +82,27 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TEST", "on resume");
     }
 
-    private void getVariablesExtras() {
-        Bundle bundle = getIntent().getExtras();
-        preActivity = bundle.getString("preActivity");
-        Log.d("TEST", "actividad anterior: " + preActivity);
-        if (preActivity == "LogInActivity") {
-            user_email = bundle.getString("user_email");
-            user_name= user_email.substring(0, user_email.indexOf('@'));
-            user_name = user_name.substring(0,1).toUpperCase() + user_name.substring(1);
-            getCurrentPlace();
-        }
-    }
 
 
     private void updateLocalizationInfo() {
-        localizationInfo.setText("Tu ubicación actual: " +  locationInfo.translatePlace2Spanish(VocabularyDataManager.currentPlace));
+        String location = getString(R.string.current_location) + " " +  locationInfo.translatePlace2Spanish(VocabularyDataManager.currentPlace).toLowerCase();
+        localizationInfo.setText(location);
     }
 
     private void InitButtons() {
         Log.d("TEST", "en initbuttons");
-        locationButton = (ImageButton)findViewById(R.id.locationButton);
-        learnButton = (Button)findViewById(R.id.learnButton);
-        testButton = (Button)findViewById(R.id.testButton);
+        locationButton = findViewById(R.id.locationButton);
+        learnButton = findViewById(R.id.learnButton);
+        testButton = findViewById(R.id.testButton);
         localizeButton = findViewById(R.id.localizeButton);
-        learnButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                initializeLearnActivity();
-            }
-        });
-        testButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                initializeEvaluationActivity();
-            }
-        });
-        locationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                initializeLocationActivity();
-            }
-        });
-        localizeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getCurrentPlace();
-            }
-        });
-        Log.d("TEST", "antes de la toolbar");
-      //getSupportActionBar().setTitle(user_name.substring(0,1).toUpperCase() + user_name.substring(1));
+        learnButton.setOnClickListener(view -> initializeLearnActivity());
+        testButton.setOnClickListener(view -> initializeEvaluationActivity());
+        locationButton.setOnClickListener(view -> createDialogLocation());
+        localizeButton.setOnClickListener(view -> getCurrentPlace());
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(VocabularyDataManager.user_email);
-        Log.d("TEST", "después de la toolbar");
-    }
 
-    private void initializeLocationActivity() {
-        Intent intent = new Intent(this, LocationActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -166,9 +123,42 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_logout:
                 logout();
                 return true;
+            case R.id.action_help:
+                showInfo();
                 default:
                     return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showInfo() {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.main_help_info))
+                .setTitle(R.string.info_about)
+                .setIcon(R.drawable.ic_info_outline_red_24dp)
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.dialog_main_help_positive_button),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+
+                            }
+                        });
+        android.support.v7.app.AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void createDialogLocation() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.pick_location)
+                .setItems(R.array.placesCategories, (dialogInterface, i) -> {
+                    ListView lv = ((AlertDialog)dialogInterface).getListView();
+                    Object checkedItem = lv.getAdapter().getItem(i);
+                    VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(checkedItem.toString());
+                    updateLocalizationInfo();
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void logout() {
@@ -183,39 +173,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeEvaluationActivity() {
         Intent intent = new Intent(this, EvaluationActivity.class);
-        intent.putExtra("user", user_email);
         startActivity(intent);
     }
 
     private void initializeLearnActivity() {
         Intent intent = new Intent(this, LearnActivity.class);
-        intent.putExtra("user", user_email);
         startActivity(intent);
     }
 
     @SuppressLint("MissingPermission")
     private void getCurrentPlace() {
-        Log.d("TEST", "En initGeofences");
         if (isLocationAccessPermitted()) {
             mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null) {
-                                Log.d("TEST", location.getLatitude() + "," + location.getLongitude());
-                                currentLat = location.getLatitude();
-                                currentLong = location.getLongitude();
-                                VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(locationInfo.nearestPlace2Me(currentLat, currentLong));
-                                updateLocalizationInfo();
+                    .addOnSuccessListener(this, location -> {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            Log.d("TEST", location.getLatitude() + "," + location.getLongitude());
+                            currentLat = location.getLatitude();
+                            currentLong = location.getLongitude();
+                            VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(locationInfo.nearestPlace2Me(currentLat, currentLong));
+                            updateLocalizationInfo();
 
-                            } else {
-                                Log.d("TEST", "La localización es nula");
-                            }
+                        } else {
+                            Log.d("TEST", "La localización es nula");
                         }
                     });
 
-           //addGeofences();
 
         } else {
             Log.d("TEST", "no localizacion");

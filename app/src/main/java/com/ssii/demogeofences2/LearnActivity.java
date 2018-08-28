@@ -158,9 +158,29 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 currentItem = item;
                 saveConceptsInOrder();
                 return true;
+            case R.id.action_help:
+                showHelp();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showHelp() {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.learn_help_info))
+                .setTitle(R.string.help_title)
+                .setIcon(R.drawable.ic_help_outline_red_24dp)
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.dialog_main_help_positive_button),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+
+                            }
+                        });
+        android.support.v7.app.AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override
@@ -188,17 +208,20 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         }
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")
+            builder.setMessage(getString(R.string.end_learn_text))
                     .setCancelable(false)
-                    .setNegativeButton("Volver al menú",
+                    .setNegativeButton(getString(R.string.end_learn_negative_button),
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    saveConceptsInOrder();
+                                    if (orderedConcepts.size() > 0)
+                                        saveConceptsInOrder();
+                                    else
+                                        initializeMainActivity();
                                 }
                             })
-                    .setPositiveButton("Evaluar",
+                    .setPositiveButton(getString(R.string.end_learn_positive_button),
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -215,7 +238,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     private void saveConceptsInOrder() {
         vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
-
     }
 
     private void saveTaughtConcepts() {

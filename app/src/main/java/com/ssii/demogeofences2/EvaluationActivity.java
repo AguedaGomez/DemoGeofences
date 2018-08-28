@@ -140,9 +140,29 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             case R.id.action_home:
                 createAlertDialog();
                 return true;
+            case R.id.action_help:
+                showHelp();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showHelp() {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.evaluation_help_info))
+                .setTitle(R.string.help_title)
+                .setIcon(R.drawable.ic_help_outline_red_24dp)
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.dialog_main_help_positive_button),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+
+                            }
+                        });
+        android.support.v7.app.AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override
@@ -196,9 +216,9 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
     private void createExitDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Para poder evaluarte necesitas aprender al menos 7 conceptos")
+        builder.setMessage(getString(R.string.alert_evaluation_text))
                 .setCancelable(false)
-                .setPositiveButton("Entendido",
+                .setPositiveButton(getString(R.string.alert_evaluation_positive_button),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -210,7 +230,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     }
 
     private void nextClick() {
-        if (index >= 7) {
+        if (index >= CONCEPTS_CUANTITY) {
             ShownConcept newShownConcept = new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName());
             newShownConcept.setError(currentError);
             Log.d("TEST", "El error es: " + newShownConcept.getError());
@@ -221,10 +241,10 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             }
             vocabularyDataManager.sendTaughtConceptsInOrder(orderedConceptHashMap);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            //AQUI RESUMEN?
-            builder.setMessage("Has aprendido todas las palabras disponibles en este contexto")
+
+            builder.setMessage(R.string.end_evaluation_text)
                     .setCancelable(false)
-                    .setPositiveButton("Volver",
+                    .setPositiveButton(R.string.end_evaluation_positive_button,
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -294,7 +314,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         boolean correct = false;
         String answer = inputNameConcept.getText().toString();
         if (answer.length()==0) {
-            Toast.makeText(this, "Escribe el nombre del concepto", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_text_empty_input_name_evaluation, Toast.LENGTH_SHORT).show();
             return;
         }
         answer = answer.substring(0,1).toUpperCase() + answer.substring(1).toLowerCase();
@@ -328,7 +348,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Log.d("TEST", "NUEVA POSICION de "+ orderedConcept.getName() + " es " + position);
         orderedConcept.setPosition(position);
         Collections.sort(orderedConceptList);
-        reOrderConcepts();
+        //reOrderConcepts();
         index++;
         loadProgressBar.setProgress(index);
         nextFAButton.setVisibility(View.VISIBLE);
