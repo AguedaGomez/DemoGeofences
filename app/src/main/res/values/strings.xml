@@ -16,6 +16,8 @@
     <string name="test_button_toolbar">Evaluar</string>
     <string name="toast_text_signup_correct">Te has registrado con éxito</string>
     <string name="toast_text_signup_failure">No se ha podido registrar este usuario</string>
+    <string name="toast_text_empty_field">Todos los campos son obligatorios</string>
+    <string name="toast_text_invalidate_age">La edad introducida no es válida</string>
 
     <string name="evaluation_button">Evaluar</string>
     <string name="learn_button">Aprender</string>

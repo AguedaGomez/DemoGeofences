@@ -122,6 +122,8 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         loadProgressBar.setMax(CONCEPTS_CUANTITY);
 
         toolbar = findViewById(R.id.mtoolbar);
+        toolbar.setNavigationOnClickListener(view -> createAlertDialog());
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
@@ -137,9 +139,6 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.action_home:
-                createAlertDialog();
-                return true;
             case R.id.action_help:
                 showHelp();
             default:

@@ -135,6 +135,17 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("TEST", "on click");
+                if (orderedConcepts.size() > VocabularyDataManager.conceptsToEvaluate.size())
+                    saveConceptsInOrder();
+                else
+                    initializeMainActivity();
+            }
+        });
         getSupportActionBar().setTitle("");
 
     }
@@ -150,10 +161,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.action_home:
-                currentItem = item;
-                saveConceptsInOrder();
-                return true;
             case R.id.action_test:
                 currentItem = item;
                 saveConceptsInOrder();
@@ -215,7 +222,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    if (orderedConcepts.size() > 0)
+                                    if (orderedConcepts.size() > VocabularyDataManager.conceptsToEvaluate.size())
                                         saveConceptsInOrder();
                                     else
                                         initializeMainActivity();
@@ -237,6 +244,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
+        Log.d("TEST", "en save");
         vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
     }
 
@@ -245,11 +253,10 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void initializeMainActivity() {
+        Log.d("TEST", "en initializeMain");
         vocabularyDataManager.deleteObserver(this);
-
         Intent intent = new Intent(this, MainActivity.class);
         finish();
-
         startActivity(intent);
     }
 
@@ -322,12 +329,18 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 vocabularyDataManager.getVocabulary();
                 break;
             case "sendTaughtConcepts":
-                if (currentItem.getItemId() == R.id.action_home)
+                if (currentItem.getItemId()==android.R.id.home) {
+                    Log.d("TEST", "HOME");
                     initializeMainActivity();
+                }
+
                 else if (currentItem.getItemId()== R.id.action_test)
                     initializeEvaluationActivity();
-                else
+                else {
+                    Log.d("TEST", "ELSE");
                     initializeMainActivity();
+                }
+
                 break;
             case "sendTaughtConceptsInOrder":
                 saveTaughtConcepts();

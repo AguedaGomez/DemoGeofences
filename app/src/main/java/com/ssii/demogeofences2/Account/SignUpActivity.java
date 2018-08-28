@@ -96,9 +96,11 @@ public class SignUpActivity extends AppCompatActivity {
         String _age = age.getText().toString();
 
         if (_email.isEmpty() || _password.isEmpty() || _age.isEmpty()) {
-            Toast.makeText(this, "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_text_empty_field), Toast.LENGTH_SHORT).show();
 
         }
+        else if (Integer.valueOf(_age) < 8 && Integer.valueOf(_age) > 70)
+            Toast.makeText(this, getString(R.string.toast_text_invalidate_age), Toast.LENGTH_SHORT).show();
         else
             result = true;
         return result;
