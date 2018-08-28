@@ -28,9 +28,11 @@ import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -57,6 +59,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     String user;
     StorageReference gsReference;
+    int indexPosition = 0;
 
 
     @Override
@@ -109,6 +112,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
+                OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, indexPosition);
+                addOrderedConcept(orderedConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -118,6 +123,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
+                OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, indexPosition);
+                addOrderedConcept(orderedConcept);
                 conceptsKeys.remove(currentConcept.getName());
                 knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
@@ -161,14 +168,22 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         initializeMainActivity();
     }
 
+    private void addOrderedConcept(OrderedConcept orderedConcept) {
+        if(!orderedConcepts.containsKey(currentConcept.getName())) {
+            orderedConcepts.put(currentConcept.getName(), orderedConcept);
+            indexPosition++;
+        }
+    }
     private void chooseConcept() {
         Log.d("TEST", "chooseConcept");
         if (conceptsKeys.size() > 0) {
             Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
             currentConcept = concepts.get(key);
-            OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, 0);
-            if(!orderedConcepts.containsKey(currentConcept.getName()))
+           /* OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, indexPosition);
+            if(!orderedConcepts.containsKey(currentConcept.getName())) {
                 orderedConcepts.put(currentConcept.getName(), orderedConcept);
+                indexPosition++;
+            }*/
             showConcept(currentConcept);
         }
         else {
@@ -180,7 +195,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    initializeMainActivity();
+                                    saveConceptsInOrder();
                                 }
                             })
                     .setPositiveButton("Evaluar",
@@ -188,8 +203,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //Guardar los conceptos aprendidos con los pesos actualizados
-                                    saveTaughtConcepts();
-
+                                    saveConceptsInOrder();
 
                                 }
                             });
@@ -200,10 +214,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void saveConceptsInOrder() {
-        if (!orderedConcepts.equals(VocabularyDataManager.conceptsToEvaluate))
-            vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
-        else
-            saveTaughtConcepts();
+        vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
+
     }
 
     private void saveTaughtConcepts() {
@@ -277,7 +289,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             case "getVocabulary":
                 concepts = VocabularyDataManager.conceptsCurrentPlace;
                 conceptsKeys = new HashSet<>(concepts.keySet());
-                conceptsKeys.removeAll(knownTaughtConcepts.keySet());
+                removeConceptsAlreadyTaught();
+                //conceptsKeys.removeAll(knownTaughtConcepts.keySet());
                 chooseConcept();
                 Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
                 break;
@@ -291,12 +304,25 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                     initializeMainActivity();
                 else if (currentItem.getItemId()== R.id.action_test)
                     initializeEvaluationActivity();
+                else
+                    initializeMainActivity();
                 break;
             case "sendTaughtConceptsInOrder":
                 saveTaughtConcepts();
 
         }
 
+    }
+
+    private void removeConceptsAlreadyTaught() {
+        List<String> conceptsTaught = new ArrayList<>();
+        conceptsKeys.removeAll(knownTaughtConcepts.keySet());
+        for (OrderedConcept concept: orderedConcepts.values()) {
+            if (concept.getStrength() == 1) {
+                conceptsTaught.add(concept.getName());
+            }
+        }
+        conceptsKeys.removeAll(conceptsTaught);
     }
 
 }

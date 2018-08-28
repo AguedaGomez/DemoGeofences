@@ -228,6 +228,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
+
                                     initializeMainActivity();
 
 
@@ -327,11 +328,18 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         Log.d("TEST", "NUEVA POSICION de "+ orderedConcept.getName() + " es " + position);
         orderedConcept.setPosition(position);
         Collections.sort(orderedConceptList);
+        reOrderConcepts();
         index++;
         loadProgressBar.setProgress(index);
         nextFAButton.setVisibility(View.VISIBLE);
         checkButton.setVisibility(View.INVISIBLE);
         progressText.setText(index + PROGRESS);
+    }
+
+    private void reOrderConcepts() {
+        for(OrderedConcept orderedConcept: orderedConceptList) {
+            orderedConcept.setPosition(orderedConceptList.indexOf(orderedConcept));
+        }
     }
 
     private void enableEditText(boolean editable) {

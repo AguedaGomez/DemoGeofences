@@ -145,55 +145,6 @@ public class LocationAlertIntentService extends IntentService {
 
     private void notifyLocationAlert(String locTransitionType, String locationDetails) {
 
-     /* NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.marker)
-                        .setContentTitle(locTransitionType)
-                        .setContentText(locationDetails)
-                        .setLights(0xff00ff00, 300, 100);
-
-        builder.setAutoCancel(true);
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        mNotificationManager.notify(0, builder.build());
-
-        Log.d("TEST", "Notification alert");
-       /*Notification notification = new Notification.Builder(this)
-                .setContentTitle(locTransitionType)
-                .setContentText(locationDetails)
-                .setSmallIcon(R.drawable.marker)
-                .build();
-
-        startForeground(0, notification );
-        --------------------------
-     Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MainActivity.class);
-        stackBuilder.addNextIntent(notificationIntent);
-        PendingIntent notificationPendingIntent =
-                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        // Get a notification builder that's compatible with platform versions >= 4
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-
-        // Define the notification settings.
-        builder.setSmallIcon(R.drawable.marker)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                        R.mipmap.ic_launcher))
-                .setContentTitle(locationDetails)
-                .setContentText(locTransitionType)
-                .setContentIntent(notificationPendingIntent);
-
-        // Dismiss notification once the user touches it.
-        builder.setAutoCancel(true);
-
-        // Get an instance of the Notification manager
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Issue the notification
-        mNotificationManager.notify(0, builder.build());*/
      NotificationCompat.Builder mBuider;
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
         int icon = R.drawable.marker;
