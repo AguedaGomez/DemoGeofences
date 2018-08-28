@@ -20,6 +20,8 @@ public class LocationInfo {
     public LocationInfo () {
         cuencaPlaces = new ArrayList<>();
         cuencaPlaces.add(new Place("Bar/Restaurante",40.0713042 ,-2.1374043));
+        cuencaPlaces.add(new Place("Bar/Restaurante",40.074822 ,-2.1393149));
+        cuencaPlaces.add(new Place("Bar/Restaurante",40.0733845 ,-2.1402167));
         cuencaPlaces.add(new Place("Hospital", 40.0537183, -2.1245353));
         cuencaPlaces.add(new Place("Estación", 40.067376, -2.1371418));
         cuencaPlaces.add(new Place("Universidad", 40.0713038, -2.1439972));
@@ -28,6 +30,7 @@ public class LocationInfo {
         cuencaPlaces.add(new Place("Centro Comercial", 40.0537142, -2.1245406));
         cuencaPlaces.add(new Place("Parque", 40.0740179, -2.1429382));
         cuencaPlaces.add(new Place("Parque", 40.0737158, -2.1370342));
+        cuencaPlaces.add(new Place("Parque", 40.0685444, -2.1404577));
 
 
         Log.d("TEST", "Añadidos places");
