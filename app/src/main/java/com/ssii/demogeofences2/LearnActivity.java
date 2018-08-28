@@ -233,7 +233,10 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //Guardar los conceptos aprendidos con los pesos actualizados
-                                    saveConceptsInOrder();
+                                    if (orderedConcepts.size() > VocabularyDataManager.conceptsToEvaluate.size())
+                                        saveConceptsInOrder();
+                                    else
+                                        initializeEvaluationActivity();
 
                                 }
                             });

@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     private GeofencingRequest getGeofencingRequest(Geofence geofence) {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
 
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
         builder.addGeofence(geofence);
         return builder.build();
 
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
                 .setCircularRegion(lat, lang, GEOFENCE_RADIUS)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT)
+                        Geofence.GEOFENCE_TRANSITION_DWELL)
                 .setLoiteringDelay(10000)
                 .build();
     }

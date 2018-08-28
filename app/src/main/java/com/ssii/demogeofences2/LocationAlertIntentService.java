@@ -45,7 +45,7 @@ public class LocationAlertIntentService extends IntentService {
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
 
         if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
 
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
