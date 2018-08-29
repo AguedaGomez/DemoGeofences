@@ -28,11 +28,9 @@ import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
@@ -46,7 +44,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     FloatingActionButton nextFAButton;
     ProgressBar progressBar;
     android.support.v7.widget.Toolbar toolbar;
-    MenuItem currentItem;
 
     VocabularyDataManager vocabularyDataManager;
     HashMap<String, Concept> concepts;
@@ -57,7 +54,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    String user;
+    String currentItem;
     StorageReference gsReference;
     int indexPosition = 0;
 
@@ -140,10 +137,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 Log.d("TEST", "on click");
-                if (orderedConcepts.size() > VocabularyDataManager.conceptsToEvaluate.size())
-                    saveConceptsInOrder();
-                else
-                    initializeMainActivity();
+                currentItem = "home";
+                saveConceptsInOrder();
             }
         });
         getSupportActionBar().setTitle("");
@@ -162,7 +157,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.action_test:
-                currentItem = item;
+                currentItem = "action_test";
                 saveConceptsInOrder();
                 return true;
             case R.id.action_help:
@@ -200,17 +195,15 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             orderedConcepts.put(currentConcept.getName(), orderedConcept);
             indexPosition++;
         }
+        else {
+            if (orderedConcepts.get(currentConcept.getName()).getStrength() == 0 && orderedConcept.getStrength() == 1)
+                orderedConcepts.get(currentConcept.getName()).setStrength(1);
+        }
     }
     private void chooseConcept() {
-        Log.d("TEST", "chooseConcept");
         if (conceptsKeys.size() > 0) {
             Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
             currentConcept = concepts.get(key);
-           /* OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, indexPosition);
-            if(!orderedConcepts.containsKey(currentConcept.getName())) {
-                orderedConcepts.put(currentConcept.getName(), orderedConcept);
-                indexPosition++;
-            }*/
             showConcept(currentConcept);
         }
         else {
@@ -222,10 +215,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    if (orderedConcepts.size() > VocabularyDataManager.conceptsToEvaluate.size())
-                                        saveConceptsInOrder();
-                                    else
-                                        initializeMainActivity();
+                                    currentItem = "home";
+                                    saveConceptsInOrder();
                                 }
                             })
                     .setPositiveButton(getString(R.string.end_learn_positive_button),
@@ -233,10 +224,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //Guardar los conceptos aprendidos con los pesos actualizados
-                                    if (orderedConcepts.size() > VocabularyDataManager.conceptsToEvaluate.size())
-                                        saveConceptsInOrder();
-                                    else
-                                        initializeEvaluationActivity();
+                                    currentItem = "evaluation";
+                                    saveConceptsInOrder();
 
                                 }
                             });
@@ -322,22 +311,19 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 concepts = VocabularyDataManager.conceptsCurrentPlace;
                 conceptsKeys = new HashSet<>(concepts.keySet());
                 removeConceptsAlreadyTaught();
-                //conceptsKeys.removeAll(knownTaughtConcepts.keySet());
                 chooseConcept();
-                Log.d("TEST", " DESDE ACTIVITY SE HAN CARGADO LAS PALABRAS");
                 break;
             case "getOrderedConcepts":
                 orderedConcepts = VocabularyDataManager.conceptsToEvaluate;
-                //Log.d("TEST", "ORDERED CONCEPTS TIENE: " + orderedConcepts.size());
                 vocabularyDataManager.getVocabulary();
                 break;
             case "sendTaughtConcepts":
-                if (currentItem.getItemId()==android.R.id.home) {
+                if (currentItem == "home") {
                     Log.d("TEST", "HOME");
                     initializeMainActivity();
                 }
 
-                else if (currentItem.getItemId()== R.id.action_test)
+                else if (currentItem == "evaluation")
                     initializeEvaluationActivity();
                 else {
                     Log.d("TEST", "ELSE");
@@ -346,6 +332,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
                 break;
             case "sendTaughtConceptsInOrder":
+                Log.d("test", "se han enviado todos los conceptos ordenados");
                 saveTaughtConcepts();
 
         }
@@ -353,14 +340,11 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     }
 
     private void removeConceptsAlreadyTaught() {
-        List<String> conceptsTaught = new ArrayList<>();
-        conceptsKeys.removeAll(knownTaughtConcepts.keySet());
-        for (OrderedConcept concept: orderedConcepts.values()) {
+        for (OrderedConcept concept: VocabularyDataManager.conceptsToEvaluate.values()) {
             if (concept.getStrength() == 1) {
-                conceptsTaught.add(concept.getName());
+                conceptsKeys.remove(concept.getName());
             }
         }
-        conceptsKeys.removeAll(conceptsTaught);
     }
 
 }

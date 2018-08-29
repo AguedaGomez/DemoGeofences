@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -85,11 +86,8 @@ public class VocabularyDataManager extends Observable{
                                 int position = Integer.valueOf(document.getData().get("position").toString());
                                 OrderedConcept orderedConcept = new OrderedConcept(name, strength, position);
                                 conceptsToEvaluate.put(name, orderedConcept);
-                                Log.d("TEST", "Añadidios los conceptos ordenados");
                             }
-                            Log.d("TEST", "conceptsToEvaluate tienen: " + conceptsToEvaluate.size());
                             setChanged();
-                            //notifyObservers(conceptsToEvaluate);
                             notifyObservers("getOrderedConcepts");
 
                         } else {
@@ -117,18 +115,25 @@ public class VocabularyDataManager extends Observable{
     }
 
     public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts) {
-
+        Log.d("TEST", "el email del usuario es: " + user_email);
         for (OrderedConcept oc: concepts.values()) {
-            DocumentReference usersPlace = db.collection("users").document(user_email).collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName());
-            usersPlace.set(oc, SetOptions.merge())
+            Log.d("TEST", "concepto en orden a enviar: " + oc.getName());
+            db.collection("users").document(user_email).collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName())
+                    .set(oc, SetOptions.merge())//SetMerge
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("TEST", "ORDENADOS ENVIADOS");
                         }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("TEST", "Ha fallado: " + e.toString());
+                        }
                     });
         }
-        setChanged();
+       setChanged();
         notifyObservers("sendTaughtConceptsInOrder");
 
     }
