@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Localingua</string>
+    <string name="app_name">GeoLingo</string>
 
     <string name="hint_name">Nombre</string>
     <string name="hint_email">Email</string>
@@ -27,12 +27,12 @@
     <string name="info_about">Sobre esta app</string>
 
     <string name="pick_location">Elige tu ubicación</string>
-    <string name="main_help_info">Localingua es una aplicación para aprender vocabulario dependiendo del lugar en el estés.
+    <string name="main_help_info">GeoLingo es una aplicación para aprender vocabulario dependiendo del lugar en el que estés.
     Comienza aprendiendo los conceptos disponibles mediante imágenes y cuando estés entrenado/a ¡evalúate!</string>
     <string name="dialog_main_help_positive_button">¡Entendido!</string>
     <string name="evaluation_help_info">Escribe el nombre del concepto mostrado por las imágenes y comprueba lo que has aprendido.</string>
-    <string name="learn_help_info">Intenta pensar en el nombre del concepto a la que se corresponde la imagen. Para mostrarlo toca encima de la imagen.
-    Indícale a la aplicación si ya conocías esta palabra para que no te la vuelva a mostrar.</string>
+    <string name="learn_help_info">Intenta pensar en el nombre del concepto a la que se corresponde la imagen. Para mostrarlo toca encima de ella.
+    Indícale a la aplicación si ya conocías o no esta palabra para que te la muestre con más o menos frecuencia.</string>
     <string name="help_title">Ayuda</string>
 
     <string name="end_evaluation_text">La evaluación ha terminado ¡Enhorabuena!</string>
