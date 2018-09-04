@@ -108,6 +108,7 @@
         android:elevation="4dp"
         android:minHeight="100dp"
         android:minWidth="100dp"
+        android:foregroundGravity="center"
         app:layout_constraintEnd_toStartOf="@+id/nextFloatingButton"
         app:layout_constraintHorizontal_bias="0.645"
         app:layout_constraintLeft_toLeftOf="parent"

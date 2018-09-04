@@ -11,6 +11,7 @@ public class OrderedConcept implements Comparable<OrderedConcept>{
     private String name;
     private int position;
     private int strength;
+    private boolean shown;
 
     public String getName() {
         return name;
@@ -36,10 +37,11 @@ public class OrderedConcept implements Comparable<OrderedConcept>{
         this.strength = strength;
     }
 
-    public OrderedConcept(String name, int strength, int position) {
+    public OrderedConcept(String name, int strength, int position, boolean shown) {
         this.name = name;
         this.strength = strength;
         this.position = position;
+        this.shown = shown;
     }
 
     @Override
@@ -49,5 +51,13 @@ public class OrderedConcept implements Comparable<OrderedConcept>{
         else if (position > orderedConcept.getPosition())
             return 1;
         return 0;
+    }
+
+    public boolean isShown() {
+        return shown;
+    }
+
+    public void setShown(boolean shown) {
+        this.shown = shown;
     }
 }

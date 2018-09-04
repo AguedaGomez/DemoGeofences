@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -28,12 +28,14 @@ import com.ssii.demogeofences2.Objects.OrderedConcept;
 import com.ssii.demogeofences2.Objects.ShownConcept;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
 import java.util.Set;
 
 public class LearnActivity extends AppCompatActivity implements Observer{
@@ -50,6 +52,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     HashMap<String, Concept> knownTaughtConcepts;
     HashMap<String, ShownConcept> taughtConcepts;
     HashMap<String, OrderedConcept> orderedConcepts;
+    List<OrderedConcept> orderedConceptsList;
     Concept currentConcept;
     Set<String> conceptsKeys;
     String appearanceTime, shownTextTime;
@@ -66,6 +69,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         knownTaughtConcepts = new HashMap<>();
         taughtConcepts = new HashMap<>();
         orderedConcepts = new HashMap<>();
+        orderedConceptsList = new ArrayList<>();
         initializeComponents();
         loadVocabulary();
     }
@@ -101,6 +105,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         nextFAButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Collections.sort(orderedConceptsList);
                 hideButtons();
                 chooseConcept();
             }
@@ -109,8 +114,9 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
-                OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, indexPosition);
-                addOrderedConcept(orderedConcept);
+                //OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, indexPosition);
+               // addOrderedConcept(orderedConcept);
+                updateConceptPosition(false);
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -119,11 +125,14 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         knowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("test", "currentConcept = " + currentConcept.getName());
                 taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
-                OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, indexPosition);
-                addOrderedConcept(orderedConcept);
-                conceptsKeys.remove(currentConcept.getName());
-                knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
+                Log.d("test", "después de añadir taught concept");
+                //OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, indexPosition);
+                //addOrderedConcept(orderedConcept);
+                updateConceptPosition(true);
+                //conceptsKeys.remove(currentConcept.getName());
+               // knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -200,7 +209,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 orderedConcepts.get(currentConcept.getName()).setStrength(1);
         }
     }
-    private void chooseConcept() {
+   /* private void chooseConcept() {
         if (conceptsKeys.size() > 0) {
             Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
             currentConcept = concepts.get(key);
@@ -233,10 +242,35 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             alert.show();
         }
 
-    }
+    }*/
+
+   private void chooseConcept() {
+       currentConcept = concepts.get(orderedConceptsList.get(0).getName());
+       showConcept();
+   }
+
+   private void updateConceptPosition(Boolean known) {
+       OrderedConcept currentOrderedConcept = orderedConcepts.get(currentConcept.getName());
+       Log.d("test", "currentOrderedConcept mostrado: " + currentOrderedConcept.isShown());
+       int currentStrenght = currentOrderedConcept.getStrength();
+       int currentPosition = currentOrderedConcept.getPosition();
+       if(known) {
+           currentOrderedConcept.setStrength(currentStrenght+1);
+
+       }
+       else {
+           currentOrderedConcept.setStrength(0);
+       }
+       currentOrderedConcept.setPosition(currentPosition + (int)Math.pow(2, currentStrenght+1));
+       currentOrderedConcept.setShown(true);
+       Log.d("test", "fin de updateConceptPosition");
+   }
 
     private void saveConceptsInOrder() {
         Log.d("TEST", "en save");
+        Toast.makeText(this, "Enviando tus progresos", Toast.LENGTH_LONG).show();
+        imagenViewConcept.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
         vocabularyDataManager.sendTaughtConceptsInOrder(orderedConcepts);
     }
 
@@ -260,7 +294,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         startActivity(intent);
     }
 
-    private void showConcept(Concept currentConcept) {
+    private void showConcept() {
+        progressBar.setVisibility(View.VISIBLE);
         FirebaseStorage storage = FirebaseStorage.getInstance();
         gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
         nameConceptTextV.setText(currentConcept.getName());
@@ -277,24 +312,21 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                     @Override
                     public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                         progressBar.setVisibility(View.GONE);
+                        Date date = new Date();
+                        appearanceTime = dateFormat.format(date);
                         return false;
                     }
                 })
                 .into(imagenViewConcept);
-        Date date = new Date();
-        appearanceTime = dateFormat.format(date);
+
     }
 
     private void showName() {
         Date date = new Date();
         shownTextTime = dateFormat.format(date);
         nameConceptTextV.setVisibility(View.VISIBLE);
-        if(!knownTaughtConcepts.containsKey(currentConcept.getName())) {
-            unknowButton.setVisibility(View.VISIBLE);
-            knowButton.setVisibility(View.VISIBLE);
-        }
-        else
-            nextFAButton.setVisibility(View.VISIBLE);
+       unknowButton.setVisibility(View.VISIBLE);
+       knowButton.setVisibility(View.VISIBLE);
     }
 
     private void hideButtons() {
@@ -308,14 +340,14 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     public void update(Observable observable, Object o) {
         switch (o.toString()) {
             case "getVocabulary":
-                concepts = VocabularyDataManager.conceptsCurrentPlace;
-                conceptsKeys = new HashSet<>(concepts.keySet());
-                removeConceptsAlreadyTaught();
-                chooseConcept();
+                    prepareVocabulary();
                 break;
             case "getOrderedConcepts":
                 orderedConcepts = VocabularyDataManager.conceptsToEvaluate;
-                vocabularyDataManager.getVocabulary();
+                if(VocabularyDataManager.conceptsCurrentPlace.isEmpty())
+                    vocabularyDataManager.getVocabulary();
+                else
+                    prepareVocabulary();
                 break;
             case "sendTaughtConcepts":
                 if (currentItem == "home") {
@@ -323,7 +355,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                     initializeMainActivity();
                 }
 
-                else if (currentItem == "evaluation")
+                else if (currentItem == "action_test")
                     initializeEvaluationActivity();
                 else {
                     Log.d("TEST", "ELSE");
@@ -332,6 +364,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
                 break;
             case "sendTaughtConceptsInOrder":
+
                 Log.d("test", "se han enviado todos los conceptos ordenados");
                 saveTaughtConcepts();
 
@@ -339,12 +372,31 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
     }
 
-    private void removeConceptsAlreadyTaught() {
-        for (OrderedConcept concept: VocabularyDataManager.conceptsToEvaluate.values()) {
-            if (concept.getStrength() == 1) {
-                conceptsKeys.remove(concept.getName());
+    private void prepareVocabulary() {
+        concepts = VocabularyDataManager.conceptsCurrentPlace;
+        conceptsKeys = new HashSet<>(concepts.keySet());
+        prepareConcepts();
+        orderedConceptsList = new ArrayList<>(orderedConcepts.values());
+        Collections.sort(orderedConceptsList);
+        chooseConcept();
+    }
+
+    private void prepareConcepts() {
+        int index = 0;
+        if (VocabularyDataManager.conceptsToEvaluate.isEmpty()) {
+            Log.d("test", "dentro de vocabularydata if");
+            for (String concept:conceptsKeys) {
+                Log.d("test", "concepto a añadir en orderedCOncepts es: " + concept);
+                OrderedConcept orderedConcept = new OrderedConcept(concept, 0, index, false);
+                orderedConcepts.put(orderedConcept.getName(), orderedConcept);
+                index++;
             }
         }
+        else {
+            orderedConcepts = VocabularyDataManager.conceptsToEvaluate;
+
+        }
     }
+
 
 }

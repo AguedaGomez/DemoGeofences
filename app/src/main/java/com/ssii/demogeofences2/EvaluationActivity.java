@@ -54,7 +54,6 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     android.support.v7.widget.Toolbar toolbar;
 
     VocabularyDataManager vocabularyDataManager;
-    String  user;
     List<OrderedConcept> orderedConceptList;
     HashMap<String, OrderedConcept> orderedConceptHashMap;
     HashMap<Integer, ShownConcept> evaluatedConcepts;
@@ -76,10 +75,10 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         vocabularyDataManager = VocabularyDataManager.getInstance();
         initializeComponents();
 
-       // orderedConceptList = new ArrayList<>();
+        orderedConceptList = new ArrayList<>();
         vocabularyDataManager.addObserver(this);
         Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDataManager.conceptsCurrentPlace.size());
-        if (vocabularyDataManager.conceptsCurrentPlace.size() <= 0)
+        if (vocabularyDataManager.conceptsCurrentPlace.isEmpty())
             vocabularyDataManager.getVocabulary();
         else vocabularyDataManager.getOrderedConcepts();
     }
@@ -195,11 +194,12 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     public void update(Observable observable, Object o) {
         switch (o.toString()) {
             case "getOrderedConcepts":
-                Log.d("TEST", "después de gtOrderedConcepts");
-                if (VocabularyDataManager.conceptsToEvaluate.size() < CONCEPTS_CUANTITY)
+                Log.d("test", orderedConceptList.size() + "");
+                addConceptsShown();
+                Log.d("test", orderedConceptList.size() + "");
+                if (orderedConceptList.size() < CONCEPTS_CUANTITY)
                     createExitDialog();
                 else {
-                    orderedConceptList = new ArrayList<>(VocabularyDataManager.conceptsToEvaluate.values());
                     Collections.sort(orderedConceptList);
                     chooseConcept();
                 }
@@ -208,8 +208,25 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             case "getVocabulary":
                 vocabularyDataManager.getOrderedConcepts();
                 break;
+            case "sendTaughtConceptsInOrder":
+
+                Log.d("test", "se han enviado todos los conceptos ordenados");
+                vocabularyDataManager.sendEvaluatedConcepts(evaluatedConcepts);
+                break;
+            case "sendEvaluatedConcepts":
+                initializeMainActivity();
+                break;
                 default:
                     break;
+        }
+    }
+
+    private void addConceptsShown() {
+        for(OrderedConcept orderedConcept: VocabularyDataManager.conceptsToEvaluate.values()) {
+            if (orderedConcept.isShown()) {
+                orderedConceptList.add(orderedConcept);
+            }
+
         }
     }
 
@@ -234,10 +251,8 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
             newShownConcept.setError(currentError);
             Log.d("TEST", "El error es: " + newShownConcept.getError());
             evaluatedConcepts.put(index, newShownConcept);
-            vocabularyDataManager.sendEvaluatedConcepts(evaluatedConcepts);
-            for (OrderedConcept o: orderedConceptList) {
-                orderedConceptHashMap.put(o.getName(), o);
-            }
+
+            //VocabularyDataManager.conceptsToEvaluate.get(currentConcept.getName());
             vocabularyDataManager.sendTaughtConceptsInOrder(orderedConceptHashMap);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -247,8 +262,10 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-
-                                    initializeMainActivity();
+                                    nextFAButton.setVisibility(View.INVISIBLE);
+                                    progressBar.setVisibility(View.VISIBLE);
+                                    Toast.makeText(EvaluationActivity.this, "Guardando tus progresos", Toast.LENGTH_SHORT).show();
+                                    //initializeMainActivity();
 
 
                                 }
@@ -259,9 +276,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         else {
             ShownConcept newShownConcept = new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName());
             newShownConcept.setError(currentError);
-            Log.d("TEST", "El error es: " + newShownConcept.getError());
             evaluatedConcepts.put(index, newShownConcept);
-            Log.d("TEST", "Añadiendo nuevo shown concept");
             chooseConcept();
         }
 
@@ -277,13 +292,16 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
     private void chooseConcept() {
         nextFAButton.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
         checkButton.setVisibility(View.VISIBLE);
         inputNameConcept.setText("");
         correctNameText.setText("");
         enableEditText(true);
         inputNameConcept.setTextColor(Color.DKGRAY);
 
-        currentConcept = VocabularyDataManager.conceptsCurrentPlace.get(orderedConceptList.get(FIRST_INDEX).getName());
+        String currentName = orderedConceptList.get(FIRST_INDEX).getName();
+        Log.d("test", "concepto a enseñar: " + currentName);
+        currentConcept = VocabularyDataManager.conceptsCurrentPlace.get(currentName);
 
         // Show concept image
         gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
@@ -300,12 +318,14 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
                     @Override
                     public boolean onResourceReady(GlideDrawable resource, StorageReference model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                         progressBar.setVisibility(View.GONE);
+
                         Date date = new Date();
                         appearanceTime = dateFormat.format(date);
                         return false;
                     }
                 })
                 .into(imageView);
+
     }
 
     private void checkAnswer() {
@@ -337,28 +357,23 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
 
     private void updateConceptPosition(boolean correct) {
         OrderedConcept orderedConcept = orderedConceptList.get(FIRST_INDEX);
-        int strenght = orderedConcept.getStrength();
+        int currentStrenght = orderedConcept.getStrength();
+        int currentPosition = orderedConcept.getPosition();
         if (correct)
-            orderedConcept.setStrength(strenght+1);
+            orderedConcept.setStrength(currentStrenght+1);
         else
             orderedConcept.setStrength(0);
-        strenght = orderedConcept.getStrength();
-        int position = orderedConceptList.indexOf(orderedConcept) + (int)Math.pow(2, strenght+1);
+        currentStrenght = orderedConcept.getStrength();
+        int position = currentPosition + (int)Math.pow(2, currentStrenght+1);
         Log.d("TEST", "NUEVA POSICION de "+ orderedConcept.getName() + " es " + position);
         orderedConcept.setPosition(position);
+        orderedConceptHashMap.put(currentConcept.getName(), orderedConcept);
         Collections.sort(orderedConceptList);
-        //reOrderConcepts();
         index++;
         loadProgressBar.setProgress(index);
         nextFAButton.setVisibility(View.VISIBLE);
         checkButton.setVisibility(View.INVISIBLE);
         progressText.setText(index + PROGRESS);
-    }
-
-    private void reOrderConcepts() {
-        for(OrderedConcept orderedConcept: orderedConceptList) {
-            orderedConcept.setPosition(orderedConceptList.indexOf(orderedConcept));
-        }
     }
 
     private void enableEditText(boolean editable) {

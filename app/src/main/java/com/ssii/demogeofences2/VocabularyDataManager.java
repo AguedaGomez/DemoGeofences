@@ -72,6 +72,7 @@ public class VocabularyDataManager extends Observable{
     }
 
     public void getOrderedConcepts() { // Tiene que ser los conceptos con el orden y la fuerza
+        conceptsToEvaluate.clear();
         Log.d("TEST", "en getOrderedConcepts");
         db.collection("users/" + user_email + "/actions/taughtConceptsInOrder/" + currentPlace)
                 .get()
@@ -84,7 +85,8 @@ public class VocabularyDataManager extends Observable{
                                 String name = document.getId().toString();
                                 int strength = Integer.valueOf(document.getData().get("strength").toString());
                                 int position = Integer.valueOf(document.getData().get("position").toString());
-                                OrderedConcept orderedConcept = new OrderedConcept(name, strength, position);
+                                boolean shown = document.getBoolean("shown");
+                                OrderedConcept orderedConcept = new OrderedConcept(name, strength, position, shown);
                                 conceptsToEvaluate.put(name, orderedConcept);
                             }
                             setChanged();
@@ -115,7 +117,8 @@ public class VocabularyDataManager extends Observable{
     }
 
     public void sendTaughtConceptsInOrder(HashMap<String, OrderedConcept>concepts) {
-        Log.d("TEST", "el email del usuario es: " + user_email);
+        int conceptsToSend = concepts.size();
+        final int[] index = {0};
         for (OrderedConcept oc: concepts.values()) {
             Log.d("TEST", "concepto en orden a enviar: " + oc.getName());
             db.collection("users").document(user_email).collection("actions").document("taughtConceptsInOrder").collection(currentPlace).document(oc.getName())
@@ -123,7 +126,11 @@ public class VocabularyDataManager extends Observable{
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d("TEST", "ORDENADOS ENVIADOS");
+                            index[0] ++;
+                            if (index[0] == conceptsToSend) {
+                                setChanged();
+                                notifyObservers("sendTaughtConceptsInOrder");
+                            }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -133,8 +140,7 @@ public class VocabularyDataManager extends Observable{
                         }
                     });
         }
-       setChanged();
-        notifyObservers("sendTaughtConceptsInOrder");
+
 
     }
 
