@@ -114,8 +114,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
             @Override
             public void onClick(View view) {
                 taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
-                //OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 0, indexPosition);
-               // addOrderedConcept(orderedConcept);
                 updateConceptPosition(false);
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
@@ -128,11 +126,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 Log.d("test", "currentConcept = " + currentConcept.getName());
                 taughtConcepts.put(currentConcept.getName(), new ShownConcept(appearanceTime, shownTextTime, currentConcept.getName()));
                 Log.d("test", "después de añadir taught concept");
-                //OrderedConcept orderedConcept = new OrderedConcept(currentConcept.getName(), 1, indexPosition);
-                //addOrderedConcept(orderedConcept);
                 updateConceptPosition(true);
-                //conceptsKeys.remove(currentConcept.getName());
-               // knownTaughtConcepts.put(currentConcept.getName(), currentConcept);
                 nextFAButton.setVisibility(View.VISIBLE);
                 unknowButton.setVisibility(View.INVISIBLE);
                 knowButton.setVisibility(View.INVISIBLE);
@@ -199,50 +193,6 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         initializeMainActivity();
     }
 
-    private void addOrderedConcept(OrderedConcept orderedConcept) {
-        if(!orderedConcepts.containsKey(currentConcept.getName())) {
-            orderedConcepts.put(currentConcept.getName(), orderedConcept);
-            indexPosition++;
-        }
-        else {
-            if (orderedConcepts.get(currentConcept.getName()).getStrength() == 0 && orderedConcept.getStrength() == 1)
-                orderedConcepts.get(currentConcept.getName()).setStrength(1);
-        }
-    }
-   /* private void chooseConcept() {
-        if (conceptsKeys.size() > 0) {
-            Object key = conceptsKeys.toArray()[new Random().nextInt(conceptsKeys.size())];
-            currentConcept = concepts.get(key);
-            showConcept(currentConcept);
-        }
-        else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(getString(R.string.end_learn_text))
-                    .setCancelable(false)
-                    .setNegativeButton(getString(R.string.end_learn_negative_button),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.cancel();
-                                    currentItem = "home";
-                                    saveConceptsInOrder();
-                                }
-                            })
-                    .setPositiveButton(getString(R.string.end_learn_positive_button),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    //Guardar los conceptos aprendidos con los pesos actualizados
-                                    currentItem = "evaluation";
-                                    saveConceptsInOrder();
-
-                                }
-                            });
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
-
-    }*/
 
    private void chooseConcept() {
        currentConcept = concepts.get(orderedConceptsList.get(0).getName());
@@ -344,7 +294,8 @@ public class LearnActivity extends AppCompatActivity implements Observer{
                 break;
             case "getOrderedConcepts":
                 orderedConcepts = VocabularyDataManager.conceptsToEvaluate;
-                if(VocabularyDataManager.conceptsCurrentPlace.isEmpty())
+
+                if(VocabularyDataManager.conceptsCurrentPlace.isEmpty() || VocabularyDataManager.vocabularyCategory != VocabularyDataManager.currentPlace)
                     vocabularyDataManager.getVocabulary();
                 else
                     prepareVocabulary();

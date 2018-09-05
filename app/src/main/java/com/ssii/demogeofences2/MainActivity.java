@@ -154,7 +154,9 @@ public class MainActivity extends AppCompatActivity {
                 .setItems(R.array.placesCategories, (dialogInterface, i) -> {
                     ListView lv = ((AlertDialog)dialogInterface).getListView();
                     Object checkedItem = lv.getAdapter().getItem(i);
+                    Log.d("test", "checkedItem " + checkedItem.toString());
                     VocabularyDataManager.currentPlace = locationInfo.translatePlace2English(checkedItem.toString());
+                    Log.d("test", "curentPlace " + VocabularyDataManager.currentPlace);
                     updateLocalizationInfo();
                 });
         AlertDialog dialog = builder.create();

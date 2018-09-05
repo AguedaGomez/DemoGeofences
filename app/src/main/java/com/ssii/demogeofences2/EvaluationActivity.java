@@ -78,7 +78,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         orderedConceptList = new ArrayList<>();
         vocabularyDataManager.addObserver(this);
         Log.d("TEST", "CONCEPTSCURRETNTPLACE SIZE = " + VocabularyDataManager.conceptsCurrentPlace.size());
-        if (vocabularyDataManager.conceptsCurrentPlace.isEmpty())
+        if (vocabularyDataManager.conceptsCurrentPlace.isEmpty() || VocabularyDataManager.vocabularyCategory != VocabularyDataManager.currentPlace)
             vocabularyDataManager.getVocabulary();
         else vocabularyDataManager.getOrderedConcepts();
     }
@@ -123,6 +123,12 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         toolbar = findViewById(R.id.mtoolbar);
         toolbar.setNavigationOnClickListener(view -> createAlertDialog());
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createAlertDialog();
+            }
+        });
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
@@ -345,6 +351,7 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         }
         else {
             correctNameText.setText(currentConcept.getName());
+            inputNameConcept.setTextColor(Color.rgb(128,0,0));
             currentError = 1;
         }
         Date date = new Date();

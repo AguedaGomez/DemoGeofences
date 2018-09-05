@@ -101,7 +101,7 @@ public class LocationInfo {
             case "Hospital":
                 place = "hospital";
                 break;
-            case "Centro comercial":
+            case "Centro Comercial":
                 place = "mall";
                 break;
         }

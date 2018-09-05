@@ -37,6 +37,7 @@ public class VocabularyDataManager extends Observable{
 
     public static String currentPlace;
     public static String user_email;
+    public static String vocabularyCategory;
 
     private VocabularyDataManager() {
         conceptsCurrentPlace = new HashMap<>();
@@ -46,7 +47,7 @@ public class VocabularyDataManager extends Observable{
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public void getVocabulary() {
-
+        conceptsCurrentPlace.clear();
         db.collection("concepts")
                 .whereEqualTo("category", currentPlace)
                 .get()
@@ -60,6 +61,7 @@ public class VocabularyDataManager extends Observable{
                                 String imageRoute = document.getData().get("image").toString();
                                 Concept concept = new Concept(name, imageRoute);
                                 conceptsCurrentPlace.put(name, concept);
+                                vocabularyCategory = document.getData().get("category").toString();
                             }
                             setChanged();
                             notifyObservers("getVocabulary");
