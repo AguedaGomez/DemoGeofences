@@ -12,9 +12,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,9 +51,10 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
     ProgressBar progressBar, loadProgressBar;
     ImageView imageView;
     EditText inputNameConcept;
-    TextView correctNameText, progressText;
+    TextView correctNameText, progressText, answerText;
     FloatingActionButton nextFAButton;
     android.support.v7.widget.Toolbar toolbar;
+    LinearLayout linearLayout;
 
     VocabularyDataManager vocabularyDataManager;
     List<OrderedConcept> orderedConceptList;
@@ -90,48 +93,50 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         inputNameConcept = (EditText) findViewById(R.id.inputNameConcept);
         progressText = findViewById(R.id.progressText);
         correctNameText = findViewById(R.id.correctName);
+        answerText = findViewById(R.id.answer);
+        answerText.setText("");
+        answerText.setVisibility(View.INVISIBLE);
         correctNameText.setText("");
         nextFAButton = findViewById(R.id.nextFloatingButton);
         nextFAButton.setVisibility(View.INVISIBLE);
         loadProgressBar = findViewById(R.id.loadProgressBar);
+        linearLayout = findViewById(R.id.linearLayout3);
+
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideKeyboard();
+            }
+        });
 
         progressText.setText(index + PROGRESS);
-        checkButton.setOnClickListener(new View.OnClickListener() {
+        inputNameConcept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("TEST", "ON CLICK");
-                checkAnswer();
+                Log.d("test", "asdfadfasdfasdfasdf");
             }
+        });
+        checkButton.setOnClickListener(view -> {
+            Log.d("TEST", "ON CLICK");
+            checkAnswer();
         });
 
-        nextFAButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nextClick();
-            }
-        });
-
-        inputNameConcept.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                return true;
-            }
-        });
+        nextFAButton.setOnClickListener(view -> nextClick());
 
         loadProgressBar.setMax(CONCEPTS_CUANTITY);
 
         toolbar = findViewById(R.id.mtoolbar);
+        setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(view -> createAlertDialog());
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createAlertDialog();
-            }
-        });
-        setSupportActionBar(toolbar);
+
         getSupportActionBar().setTitle("");
 
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
     @Override
@@ -302,8 +307,10 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         checkButton.setVisibility(View.VISIBLE);
         inputNameConcept.setText("");
         correctNameText.setText("");
-        enableEditText(true);
-        inputNameConcept.setTextColor(Color.DKGRAY);
+        inputNameConcept.setVisibility(View.VISIBLE);
+        answerText.setVisibility(View.INVISIBLE);
+       // enableEditText(true);
+        //inputNameConcept.setTextColor(Color.DKGRAY);
 
         String currentName = orderedConceptList.get(FIRST_INDEX).getName();
         Log.d("test", "concepto a enseñar: " + currentName);
@@ -345,20 +352,22 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         answer = answer.substring(0,1).toUpperCase() + answer.substring(1).toLowerCase();
         if (answer.equals(currentConcept.getName())) {
             Log.d("TEST", "RESPUESTA CORRECTA");
-            inputNameConcept.setTextColor(Color.rgb(0,128,0));
+            answerText.setTextColor(Color.rgb(0,128,0));
             correct = true;
             currentError = 0;
         }
         else {
             correctNameText.setText(currentConcept.getName());
-            inputNameConcept.setTextColor(Color.rgb(128,0,0));
+            answerText.setTextColor(Color.rgb(128,0,0));
             currentError = 1;
         }
         Date date = new Date();
         shownTextTime = dateFormat.format(date);
 
-        inputNameConcept.setText(answer);
-        enableEditText(false);
+        answerText.setText(answer);
+        answerText.setVisibility(View.VISIBLE);
+        inputNameConcept.setVisibility(View.INVISIBLE);
+      //  enableEditText(false);
         updateConceptPosition(correct);
     }
 
@@ -374,6 +383,8 @@ public class EvaluationActivity extends AppCompatActivity implements Observer {
         int position = currentPosition + (int)Math.pow(2, currentStrenght+1);
         Log.d("TEST", "NUEVA POSICION de "+ orderedConcept.getName() + " es " + position);
         orderedConcept.setPosition(position);
+        if( orderedConcept.getName() == Collections.min(orderedConceptList).getName())
+            orderedConcept.setPosition(orderedConceptList.get(1).getPosition() + 2);
         orderedConceptHashMap.put(currentConcept.getName(), orderedConcept);
         Collections.sort(orderedConceptList);
         index++;
