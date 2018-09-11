@@ -105,7 +105,9 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         nextFAButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("test", "en onclick antess de sort");
                 Collections.sort(orderedConceptsList);
+                Log.d("test", "orderedCOnceptsList= " + orderedConceptsList.size());
                 hideButtons();
                 chooseConcept();
             }
@@ -195,6 +197,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
 
 
    private void chooseConcept() {
+        Log.d("test", orderedConceptsList.get(0).getName());
        currentConcept = concepts.get(orderedConceptsList.get(0).getName());
        showConcept();
    }
@@ -249,8 +252,11 @@ public class LearnActivity extends AppCompatActivity implements Observer{
     private void showConcept() {
         progressBar.setVisibility(View.VISIBLE);
         FirebaseStorage storage = FirebaseStorage.getInstance();
+        Log.d("test", "current concept: " + currentConcept.getName());
         gsReference = storage.getReferenceFromUrl(currentConcept.getImage());
+        Log.d("test", "después de poder poner la referencia de la imagen");
         nameConceptTextV.setText(currentConcept.getName());
+        Log.d("test", "después del nombre");
        Glide.with(getApplicationContext())
                 .using(new FirebaseImageLoader())
                 .load(gsReference)
@@ -286,6 +292,7 @@ public class LearnActivity extends AppCompatActivity implements Observer{
         unknowButton.setVisibility(View.INVISIBLE);
         knowButton.setVisibility(View.INVISIBLE);
         nameConceptTextV.setVisibility(View.INVISIBLE);
+        Log.d("test", "después de hidebuttons");
     }
 
     @Override
